@@ -21,10 +21,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
-        //Schema::defaultStringLength(191);
         Paginator::useBootstrapFive();
         Paginator::useBootstrapFour();
-        DB::statement("SET time_zone='-04:00'");
+
+        // Solo ejecutamos el SET time_zone si la conexión es MySQL
+        if (config('database.default') === 'mysql') {
+            DB::statement("SET time_zone='-04:00'");
+        }
     }
 }

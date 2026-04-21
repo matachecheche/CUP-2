@@ -3,8 +3,8 @@
 @section('title','Crear rol')
 
 @push('css')
-
 @endpush
+
 @can('crear roles')
 @section('content')
 <div class="container-fluid px-4">
@@ -20,9 +20,8 @@
             <p>Nota: Los roles son un conjunto de permisos</p>
         </div>
         <div class="card-body">
-            <form action="{{ route('roles.store') }}" method="post">
+            <form action="{{ route('roles.store') }}" method="POST">
                 @csrf
-                <!---Nombre de rol---->
                 <div class="row mb-4">
                     <label for="name" class="col-md-auto col-form-label">Nombre del rol:</label>
                     <div class="col-md-4">
@@ -35,32 +34,30 @@
                     </div>
                 </div>
 
-                <!---Permisos---->
                 <div class="col-12">
                     <p class="text-muted">Permisos para el rol:</p>
                     @foreach ($permisos as $item)
                     <div class="form-check mb-2">
-                        <input type="checkbox" name="permission[]" id="{{$item->id}}" class="form-check-input" value="{{$item->id}}">
-                        <label for="{{$item->id}}" class="form-check-label">{{$item->name}}</label>
+                        {{-- Cambiamos el value a ID y nos aseguramos que el name sea permissions[] --}}
+                        <input type="checkbox" name="permissions[]" id="p-{{$item->id}}" class="form-check-input" value="{{$item->id}}">
+                        <label for="p-{{$item->id}}" class="form-check-label">{{$item->name}}</label>
                     </div>
                     @endforeach
                 </div>
-                @error('permission')
+                @error('permissions')
                 <small class="text-danger">{{'*'.$message}}</small>
                 @enderror
 
-                <div class="col-12 text-center">
+                <div class="col-12 text-center mt-3">
                     <button type="submit" class="btn btn-primary">Guardar</button>
                 </div>
 
             </form>
         </div>
     </div>
-
-
 </div>
 @endsection
 @endcan
-@push('js')
 
+@push('js')
 @endpush

@@ -12,6 +12,11 @@ class RoleController extends Controller
 {
     use BitacoraTrait;
 
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
     public function index()
     {
         $roles = Role::all();
@@ -26,6 +31,7 @@ class RoleController extends Controller
 
     public function store(Request $request)
     {
+        // Validamos asegurando que permissions sea un array
         $request->validate([
             'name' => 'required|unique:roles,name',
             'permissions' => 'required|array|min:1'
@@ -33,26 +39,42 @@ class RoleController extends Controller
 
         DB::beginTransaction();
         try {
-            $role = Role::create(['name' => $request->name, 'guard_name' => 'web']);
-            $role->syncPermissions($request->permissions);
+            // 1. Crear el rol
+            $role = Role::create([
+                'name' => $request->name, 
+                'guard_name' => 'web'
+            ]);
 
-            $this->registrarEnBitacora('Rol creado', $role->id); // ← antes del commit
+            // 2. Convertir los IDs a números enteros para que Spatie no se confunda
+            $permissionIds = array_map('intval', $request->permissions);
+            
+            // 3. Sincronizar permisos por ID
+            $role->syncPermissions($permissionIds);
 
+            // 4. Registrar en bitácora
+            if (method_exists($this, 'registrarEnBitacora')) {
+                $this->registrarEnBitacora('Rol creado: ' . $role->name, $role->id);
+            }
 
             DB::commit();
+            
+            // Limpiamos la caché de Spatie por código para estar seguros
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
             return redirect()->route('roles.index')->with('success', 'Rol creado correctamente');
+
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Error al crear el rol: ' . $e->getMessage());
+            // Esto nos dirá exactamente qué falló en un mensaje de error
+            return redirect()->back()->withInput()->with('error', 'Fallo al guardar: ' . $e->getMessage());
         }
-
-       
     }
 
     public function edit(Role $role)
     {
         $permisos = Permission::all();
-        $permisosRol = $role->permissions->pluck('name')->toArray();
+        // Obtenemos los IDs de los permisos que ya tiene el rol
+        $permisosRol = $role->permissions->pluck('id')->toArray();
         return view('roles.edit', compact('role', 'permisos', 'permisosRol'));
     }
 
@@ -66,30 +88,38 @@ class RoleController extends Controller
         DB::beginTransaction();
         try {
             $role->update(['name' => $request->name]);
-            $role->syncPermissions($request->permissions);
+            
+            $permissionIds = array_map('intval', $request->permissions);
+            $role->syncPermissions($permissionIds);
 
-            $this->registrarEnBitacora('Rol actualizado', $role->id);
+            if (method_exists($this, 'registrarEnBitacora')) {
+                $this->registrarEnBitacora('Rol actualizado: ' . $role->name, $role->id);
+            }
 
             DB::commit();
+            app()[\Spatie\Permission\PermissionRegistrar::class]->forgetCachedPermissions();
+
             return redirect()->route('roles.index')->with('success', 'Rol actualizado correctamente');
         } catch (\Exception $e) {
             DB::rollback();
-            return redirect()->back()->with('error', 'Error al actualizar el rol: ' . $e->getMessage());
+            return redirect()->back()->withInput()->with('error', 'Error al actualizar: ' . $e->getMessage());
         }
-
-         
     }
 
     public function destroy(Role $role)
     {
-        $role->delete();
-        $this->registrarEnBitacora('Rol eliminado', $role->id);
+        try {
+            $roleId = $role->id;
+            $roleName = $role->name;
+            $role->delete();
+            
+            if (method_exists($this, 'registrarEnBitacora')) {
+                $this->registrarEnBitacora('Rol eliminado: ' . $roleName, $roleId);
+            }
 
-        return redirect()->route('roles.index')->with('success', 'Rol eliminado correctamente');
-    }
-
-    public function __construct()
-    {
-        $this->middleware('auth');
+            return redirect()->route('roles.index')->with('success', 'Rol eliminado correctamente');
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error', 'No se pudo eliminar el rol.');
+        }
     }
 }
