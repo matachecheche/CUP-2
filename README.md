@@ -1,6 +1,5 @@
 # PROYECTO API
 
-1. Clonar el proyecto
 2. Instalar las dependencias
 
 ```
