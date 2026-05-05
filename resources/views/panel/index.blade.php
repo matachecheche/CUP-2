@@ -45,7 +45,7 @@
         min-width: 40px; text-align: center;
         flex-shrink: 0;
     }
-    .badge-done  { background:#22c55e22; color:#4ade80; border:1px solid #4ade8055; }
+    .badge-done    { background:#22c55e22; color:#4ade80; border:1px solid #4ade8055; }
     .badge-pending { background:#ffffff0a; color:#64748b; border:1px solid #33415533; }
     .pkg-1 { background: linear-gradient(135deg,#1e3a8a,#2563eb); }
     .pkg-2 { background: linear-gradient(135deg,#064e3b,#059669); }
@@ -66,10 +66,7 @@
     <h1 class="mt-4 fw-bold text-light">Panel de Control</h1>
     <p class="text-secondary mb-4">Sistema de Gestión de Condominio — Módulos por paquete</p>
 
-    {{-- ============================================================ --}}
-    {{-- PAQUETE 1 — Gestión de Acceso y Seguridad                   --}}
-    {{-- CU1, CU2, CU3, CU4                                          --}}
-    {{-- ============================================================ --}}
+    {{-- PAQUETE 1 — Acceso y Seguridad: CU1, CU2, CU3, CU4 --}}
     <div class="paquete-card">
         <div class="paquete-header pkg-1 text-white"
              data-bs-toggle="collapse" data-bs-target="#paquete1" aria-expanded="true">
@@ -110,10 +107,7 @@
         </div>
     </div>
 
-    {{-- ============================================================ --}}
-    {{-- PAQUETE 2 — Gestión de Personas y Estructura                --}}
-    {{-- CU5 ✓, CU6 ✓, CU13 (pendiente)                            --}}
-    {{-- ============================================================ --}}
+    {{-- PAQUETE 2 — Personas y Estructura: CU5, CU6, CU13 --}}
     <div class="paquete-card">
         <div class="paquete-header pkg-2 text-white"
              data-bs-toggle="collapse" data-bs-target="#paquete2" aria-expanded="true">
@@ -142,17 +136,14 @@
                     <span class="cu-badge badge-pending">CU13</span>
                     <i class="fas fa-link"></i>
                     Vincular residente con unidad habitacional
-                    <span class="ciclo-tag">Ciclo 2</span>
+                    <span class="ciclo-tag">Ciclo 3</span>
                 </span>
 
             </div>
         </div>
     </div>
 
-    {{-- ============================================================ --}}
-    {{-- PAQUETE 3 — Gestión Operativa del Condominio                --}}
-    {{-- CU7, CU8, CU9, CU10, CU15 (todos pendientes)              --}}
-    {{-- ============================================================ --}}
+    {{-- PAQUETE 3 — Gestión Operativa: CU7, CU8, CU9, CU10, CU15, CU16, CU17 --}}
     <div class="paquete-card">
         <div class="paquete-header pkg-3 text-white"
              data-bs-toggle="collapse" data-bs-target="#paquete3" aria-expanded="true">
@@ -165,49 +156,55 @@
         <div id="paquete3" class="collapse show">
             <div class="paquete-body">
 
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU7</span>
-                    <i class="fas fa-dollar-sign"></i>
+                <a href="{{ route('cuotas.index') }}" class="cu-item text-slate-200">
+                    <span class="cu-badge badge-done">CU7</span>
+                    <i class="fas fa-dollar-sign" style="color:#fb923c"></i>
                     Gestionar pagos de cuotas
-                    <span class="ciclo-tag">Ciclo 2</span>
-                </span>
+                </a>
 
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU8</span>
-                    <i class="fas fa-calendar-check"></i>
+                <a href="{{ route('reservas.index') }}" class="cu-item text-slate-200">
+                    <span class="cu-badge badge-done">CU8</span>
+                    <i class="fas fa-calendar-check" style="color:#fb923c"></i>
                     Gestionar reservas de áreas comunes
-                    <span class="ciclo-tag">Ciclo 2</span>
-                </span>
+                </a>
 
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU9</span>
-                    <i class="fas fa-tools"></i>
+                <a href="{{ route('mantenimientos.index') }}" class="cu-item text-slate-200">
+                    <span class="cu-badge badge-done">CU9</span>
+                    <i class="fas fa-tools" style="color:#fb923c"></i>
                     Gestionar mantenimientos
-                    <span class="ciclo-tag">Ciclo 2</span>
-                </span>
+                </a>
 
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU10</span>
-                    <i class="fas fa-door-open"></i>
+                <a href="{{ route('visitas.index') }}" class="cu-item text-slate-200">
+                    <span class="cu-badge badge-done">CU10</span>
+                    <i class="fas fa-door-open" style="color:#fb923c"></i>
                     Gestionar visitas al condominio
-                    <span class="ciclo-tag">Ciclo 2</span>
+                </a>
+
+                <a href="{{ route('empresas.index') }}" class="cu-item text-slate-200">
+                    <span class="cu-badge badge-done">CU15</span>
+                    <i class="fas fa-handshake" style="color:#fb923c"></i>
+                    Registrar contratación de empresa externa
+                </a>
+
+                <span class="cu-item disabled">
+                    <span class="cu-badge badge-pending">CU16</span>
+                    <i class="fas fa-flag"></i>
+                    Gestionar denuncias o reportes de incidencias
+                    <span class="ciclo-tag">Ciclo 3</span>
                 </span>
 
                 <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU15</span>
-                    <i class="fas fa-handshake"></i>
-                    Registrar contratación de empresas
-                    <span class="ciclo-tag">Ciclo 2</span>
+                    <span class="cu-badge badge-pending">CU17</span>
+                    <i class="fas fa-bell"></i>
+                    Enviar notificaciones a residentes
+                    <span class="ciclo-tag">Ciclo 3</span>
                 </span>
 
             </div>
         </div>
     </div>
 
-    {{-- ============================================================ --}}
-    {{-- PAQUETE 4 — Comunicación y Reportes                         --}}
-    {{-- CU11, CU12, CU14 (todos pendientes)                        --}}
-    {{-- ============================================================ --}}
+    {{-- PAQUETE 4 — Comunicación y Reportes: CU11, CU12, CU14, CU18, CU19, CU20 --}}
     <div class="paquete-card">
         <div class="paquete-header pkg-4 text-white"
              data-bs-toggle="collapse" data-bs-target="#paquete4" aria-expanded="true">
@@ -220,25 +217,45 @@
         <div id="paquete4" class="collapse show">
             <div class="paquete-body">
 
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU11</span>
-                    <i class="fas fa-envelope"></i>
+                <a href="{{ route('comunicados.index') }}" class="cu-item text-slate-200">
+                    <span class="cu-badge badge-done">CU11</span>
+                    <i class="fas fa-envelope" style="color:#a78bfa"></i>
                     Gestionar comunicados internos
-                    <span class="ciclo-tag">Ciclo 2</span>
-                </span>
+                </a>
 
                 <span class="cu-item disabled">
                     <span class="cu-badge badge-pending">CU12</span>
                     <i class="fas fa-file-alt"></i>
                     Generar informes administrativos
-                    <span class="ciclo-tag">Ciclo 2</span>
+                    <span class="ciclo-tag">Ciclo 3</span>
                 </span>
 
                 <span class="cu-item disabled">
                     <span class="cu-badge badge-pending">CU14</span>
                     <i class="fas fa-receipt"></i>
-                    Generar reportes de pago
-                    <span class="ciclo-tag">Ciclo 2</span>
+                    Generar reportes de pagos
+                    <span class="ciclo-tag">Ciclo 3</span>
+                </span>
+
+                <span class="cu-item disabled">
+                    <span class="cu-badge badge-pending">CU18</span>
+                    <i class="fas fa-exclamation-circle"></i>
+                    Gestionar reclamos administrativos
+                    <span class="ciclo-tag">Ciclo 3</span>
+                </span>
+
+                <span class="cu-item disabled">
+                    <span class="cu-badge badge-pending">CU19</span>
+                    <i class="fas fa-calendar-star"></i>
+                    Gestionar eventos comunitarios
+                    <span class="ciclo-tag">Ciclo 3</span>
+                </span>
+
+                <span class="cu-item disabled">
+                    <span class="cu-badge badge-pending">CU20</span>
+                    <i class="fas fa-clipboard-list"></i>
+                    Gestionar reclamos administrativos (II)
+                    <span class="ciclo-tag">Ciclo 3</span>
                 </span>
 
             </div>
