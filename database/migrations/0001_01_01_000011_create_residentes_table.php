@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('apellido');
             $table->string('ci')->unique();
             $table->string('email')->unique();
-            $table->string('tipo_residente');
+            $table->string('tipo_residente');          
             $table->timestamps();
         });
     }

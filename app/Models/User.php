@@ -15,7 +15,9 @@ class User extends Authenticatable
     public function empleado(){
         return $this->belongsTo(Empleado::class);
     }
-
+    public function residente(){
+        return $this->belongsTo(Residente::class);
+    }
     public function bitacoras(){
         return $this->hasMany(Bitacora::class);
     }
@@ -28,6 +30,7 @@ class User extends Authenticatable
      */
     protected $fillable = [ //los datos que van guardar cuando se crree un registro estos parametros obligari¿
         'empleado_id',
+        'residente_id',
         'name',
         'email',
         'email_verified_at',
