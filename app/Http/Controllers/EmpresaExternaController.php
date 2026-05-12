@@ -3,10 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Models\EmpresaExterna;
+use App\Traits\BitacoraTrait;
 use Illuminate\Http\Request;
 
 class EmpresaExternaController extends Controller
 {
+    use BitacoraTrait;
+
     public function index()
     {
         $empresas = EmpresaExterna::latest()->paginate(10);
@@ -21,15 +24,16 @@ class EmpresaExternaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'servicio' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:50',
-            'correo' => 'nullable|email|max:100',
-            'direccion' => 'nullable|string|max:255',
+            'nombre'      => 'required|string|max:255',
+            'servicio'    => 'required|string|max:255',
+            'telefono'    => 'nullable|string|max:50',
+            'correo'      => 'nullable|email|max:100',
+            'direccion'   => 'nullable|string|max:255',
             'observacion' => 'nullable|string',
         ]);
 
-        EmpresaExterna::create($request->all());
+        $empresa = EmpresaExterna::create($request->all());
+        $this->registrarEnBitacora('Registró empresa externa: ' . $empresa->nombre, $empresa->id);
 
         return redirect()->route('empresas.index')->with('success', 'Empresa registrada correctamente.');
     }
@@ -47,22 +51,27 @@ class EmpresaExternaController extends Controller
     public function update(Request $request, EmpresaExterna $empresa)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
-            'servicio' => 'required|string|max:255',
-            'telefono' => 'nullable|string|max:50',
-            'correo' => 'nullable|email|max:100',
-            'direccion' => 'nullable|string|max:255',
+            'nombre'      => 'required|string|max:255',
+            'servicio'    => 'required|string|max:255',
+            'telefono'    => 'nullable|string|max:50',
+            'correo'      => 'nullable|email|max:100',
+            'direccion'   => 'nullable|string|max:255',
             'observacion' => 'nullable|string',
         ]);
 
         $empresa->update($request->all());
+        $this->registrarEnBitacora('Actualizó empresa externa: ' . $empresa->nombre, $empresa->id);
 
         return redirect()->route('empresas.index')->with('success', 'Empresa actualizada correctamente.');
     }
 
     public function destroy(EmpresaExterna $empresa)
     {
+        $nombre = $empresa->nombre;
+        $id     = $empresa->id;
         $empresa->delete();
+        $this->registrarEnBitacora('Eliminó empresa externa: ' . $nombre, $id);
+
         return redirect()->route('empresas.index')->with('success', 'Empresa eliminada correctamente.');
     }
 }

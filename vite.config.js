@@ -1,6 +1,6 @@
 import { defineConfig } from 'vite';
 import laravel from 'laravel-vite-plugin';
-
+// comentario
 export default defineConfig({
     plugins: [
         laravel({

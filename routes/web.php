@@ -23,6 +23,7 @@ use App\Http\Controllers\AreaComunController;
 use App\Http\Controllers\ReservaController;
 use App\Http\Controllers\VisitaController;
 use App\Http\Controllers\ComunicadoController;
+use App\Models\Bitacora;
 
 // ── Recuperación de contraseña ────────────────────────────────────────────────
 Route::get('password/reset', [ForgotPasswordController::class, 'showLinkRequestForm'])->name('password.request');
@@ -110,3 +111,18 @@ Route::middleware(['auth'])->group(function () {
 
 // ── CU11 — Comunicados ────────────────────────────────────────────────────────
 Route::resource('comunicados', ComunicadoController::class);
+
+// ── Bitácora: cierre de página (beforeunload vía sendBeacon) ──────────────────
+// Esta ruta recibe un POST silencioso desde el JS cuando el usuario cierra/abandona la página.
+Route::post('/bitacora/page-close', function () {
+    if (Auth::check()) {
+        Bitacora::create([
+            'user_id'    => Auth::id(),
+            'usuario'    => Auth::user()->name,
+            'accion'     => 'Cerró o abandonó la página del sistema',
+            'fecha_hora' => now(),
+            'ip'         => request()->ip(),
+        ]);
+    }
+    return response()->noContent();
+})->middleware('web')->name('bitacora.page-close');
