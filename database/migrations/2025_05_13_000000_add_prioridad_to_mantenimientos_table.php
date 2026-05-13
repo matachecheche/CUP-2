@@ -1,0 +1,19 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        // La columna 'prioridad' ya existe en la tabla 'mantenimientos'
+        // Esta migración está vacía porque la columna ya fue creada anteriormente
+    }
+
+    public function down(): void
+    {
+        // No hacer nada en la reversión
+    }
+};

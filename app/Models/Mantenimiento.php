@@ -10,9 +10,58 @@ class Mantenimiento extends Model
     use HasFactory;
 
     protected $fillable = [
-        'descripcion', 'estado', 'fecha_hora', 'monto',
-        'usuario_id', 'empresaExterna_id', 'gasto_id', 'pago_id'
+        'descripcion', 
+        'estado', 
+        'prioridad',
+        'fecha_hora', 
+        'monto',
+        'usuario_id', 
+        'empresaExterna_id', 
+        'gasto_id', 
+        'pago_id'
     ];
+
+    protected $casts = [
+    'fecha_hora' => 'datetime',
+    ];
+    
+    public const PRIORIDAD_BAJA = 'baja';
+    public const PRIORIDAD_MEDIA = 'media';
+    public const PRIORIDAD_ALTA = 'alta';
+
+    public static function prioridades()
+    {
+        return [
+            self::PRIORIDAD_BAJA  => 'Baja',
+            self::PRIORIDAD_MEDIA => 'Media',
+            self::PRIORIDAD_ALTA  => 'Alta',
+        ];
+    }
+
+    public function getPrioridadEtiquetaAttribute()
+    {
+        $etiquetas = [
+            'baja'  => 'Baja Prioridad',
+            'media' => 'Prioridad Media',
+            'alta'  => 'ALTA PRIORIDAD ⚠️',
+        ];
+        return $etiquetas[$this->prioridad] ?? 'No definida';
+    }
+
+    public function scopeAltaPrioridad($query)
+    {
+        return $query->where('prioridad', 'alta');
+    }
+
+    public function scopeMediana($query)
+    {
+        return $query->where('prioridad', 'media');
+    }
+
+    public function scopeBaja($query)
+    {
+        return $query->where('prioridad', 'baja');
+    }
 
     public function usuario()
     {
