@@ -10,46 +10,24 @@ class UsuariosSeeder extends Seeder
 {
     public function run(): void
     {
-        $password = Hash::make('12345678');
+        $pwd = Hash::make('12345678');
 
-        // Usuario ADMINISTRADOR
-        $admin = User::create([
-            'name' => 'admin',
-            'email' => 'admin@gmail.com',
-            'activo' => 1,
-            'email_verified_at' => now(),
-            'password' => $password,
-        ]);
-        $admin->assignRole('Administrador');
+        $usuarios = [
+            ['name' => 'admin',         'email' => 'admin@cup.edu.bo',      'rol' => 'Administrador'],
+            ['name' => 'admisiones',    'email' => 'admisiones@cup.edu.bo', 'rol' => 'Responsable de Admisiones'],
+            ['name' => 'docente',       'email' => 'docente@cup.edu.bo',    'rol' => 'Docente'],
+            ['name' => 'autoridad',     'email' => 'autoridad@cup.edu.bo',  'rol' => 'Autoridad de la Facultad'],
+        ];
 
-        // Usuario DIRECTIVA
-        $directiva = User::create([
-            'name' => 'directiva',
-            'email' => 'directiva@gmail.com',
-            'activo' => 1,
-            'email_verified_at' => now(),
-            'password' => $password,
-        ]);
-        $directiva->assignRole('Miembro de Directiva');
-
-        // Usuario RESIDENTE
-        $residente = User::create([
-            'name' => 'residente',
-            'email' => 'residente@gmail.com',
-            'activo' => 1,
-            'email_verified_at' => now(),
-            'password' => $password,
-        ]);
-        $residente->assignRole('Residente');
-
-        // Usuario PORTERO
-        $control = User::create([
-            'name' => 'portero',
-            'email' => 'portero@gmail.com',
-            'activo' => 1,
-            'email_verified_at' => now(),
-            'password' => $password,
-        ]);
-        $control->assignRole('Portero');
+        foreach ($usuarios as $data) {
+            $user = User::create([
+                'name'               => $data['name'],
+                'email'              => $data['email'],
+                'activo'             => true,
+                'email_verified_at'  => now(),
+                'password'           => $pwd,
+            ]);
+            $user->assignRole($data['rol']);
+        }
     }
 }

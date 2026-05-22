@@ -4,6 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Tabla users sin FK a docentes/postulantes.
+ * Las FK se agregan en 2026_01_01_000007_add_fk_users_table.php
+ * una vez que esas tablas ya existen.
+ */
 return new class extends Migration
 {
     public function up(): void
@@ -14,16 +19,15 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            
-            // Relaciones opcionales
-            $table->foreignId('empleado_id')->nullable()->constrained('empleados')->onDelete('cascade');
-            $table->foreignId('residente_id')->nullable()->constrained('residentes')->onDelete('cascade');
-            
-            $table->rememberToken();
+
+            // Columnas sin FK por ahora (se agregan después)
+            $table->unsignedBigInteger('docente_id')->nullable();
+            $table->unsignedBigInteger('postulante_id')->nullable();
+
             $table->boolean('activo')->default(true);
+            $table->rememberToken();
             $table->timestamps();
         });
-        
     }
 
     public function down(): void

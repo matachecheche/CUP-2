@@ -1,119 +1,87 @@
-@extends('plantilla')
+@extends('layouts.ap')
 
-@section('title', 'Usuarios')
+@section('title', 'Usuarios — Admisión CUP')
 
 @push('css')
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 @endpush
 
 @section('content')
+@include('layouts.partials.alert')
+
 @if (session('success'))
 <script>
-    let message = "{{ session('success') }}"
-    const Toast = Swal.mixin({
-        toast: true,
-        position: "top-end",
-        showConfirmButton: false,
-        timer: 1500,
-        timerProgressBar: true,
-        didOpen: (toast) => {
-            toast.onmouseenter = Swal.stopTimer;
-            toast.onmouseleave = Swal.resumeTimer;
-        }
-    });
-    Toast.fire({
-        icon: "success",
-        title: message
-    });
+    Swal.mixin({ toast:true, position:'top-end', showConfirmButton:false, timer:2000, timerProgressBar:true })
+        .fire({ icon:'success', title:"{{ session('success') }}" });
 </script>
 @endif
 
 <div class="container-fluid px-4">
-    <h1 class="mt-4">Usuarios</h1>
+    <h1 class="mt-4">Usuarios del Sistema</h1>
     <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}"> Inicio </a></li>
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
         <li class="breadcrumb-item active">Usuarios</li>
     </ol>
+
     @can('crear usuarios')
-    <div class="mb-4">
-        <a href="{{ route('users.create') }}"><button type="button" class="btn btn-primary btn-sm">Nuevo
-                usuario</button></a>
+    <div class="mb-3">
+        <a href="{{ route('users.create') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-plus me-1"></i> Nuevo Usuario
+        </a>
     </div>
     @endcan
+
     <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-table me-1"></i>
-            Tabla Usuarios
-        </div>
+        <div class="card-header"><i class="fas fa-users me-1"></i> Listado de Usuarios</div>
         <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped">
+            <table id="datatablesSimple" class="table table-striped table-sm">
                 <thead>
                     <tr>
-                        <th>Usuario</th>
-                        <th>email</th>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Email</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($users as $user)
                     <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td>{{ $user->name }}</td>
+                        <td>{{ $user->email }}</td>
                         <td>
-                            {{ $user->name }}
+                            @foreach($user->getRoleNames() as $rol)
+                                <span class="badge bg-info text-dark">{{ $rol }}</span>
+                            @endforeach
                         </td>
                         <td>
-                            {{ $user->email }}
+                            @if($user->activo)
+                                <span class="badge bg-success">Activo</span>
+                            @else
+                                <span class="badge bg-secondary">Inactivo</span>
+                            @endif
                         </td>
                         <td>
-                            <div class="btn-group" role="group" aria-label="Basic mixed styles example">
+                            <div class="btn-group btn-group-sm">
                                 @can('editar usuarios')
-                                <form action="{{ route('users.edit', ['user' => $user]) }}"
-                                    method="GET">
-                                    <button type="submit" class="btn btn-primary btn-sm">Editar</button>
-                                </form>
+                                <a href="{{ route('users.edit', $user) }}" class="btn btn-warning btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
                                 @endcan
-                                <form action=""
-                                    method="GET" hidden>
-                                    <button type="submit" class="btn btn-warning btn-sm">Cambiar password</button>
-                                </form>
-                                
-                                
                                 @can('eliminar usuarios')
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal"
-                                    data-bs-target="#confimarModal-{{ $user->id }}">Eliminar</button>
+                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
+                                    @csrf @method('DELETE')
+                                    <button class="btn btn-sm {{ $user->activo ? 'btn-danger' : 'btn-success' }}"
+                                            onclick="return confirm('¿Confirmar cambio de estado?')">
+                                        <i class="fas fa-{{ $user->activo ? 'ban' : 'check' }}"></i>
+                                    </button>
+                                </form>
                                 @endcan
                             </div>
                         </td>
                     </tr>
-
-                    <!-- Modal -->
-                    @can('eliminar usuarios')
-                    <div class="modal fade" id="confimarModal-{{ $user->id }}" data-bs-backdrop="static"
-                        data-bs-keyboard="false" tabindex="-1" aria-labelledby="confimarModalLabel"
-                        aria-hidden="true">
-                        <div class="modal-dialog">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="confimarModalLabel">Eliminar usuario</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
-                                        aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    ¿ Desea eliminar el registro de: {{ $user->name }} ?
-                                </div>
-                                <div class="modal-footer">
-                                    <form action="{{ route('users.destroy', ['user' => $user->id]) }}"
-                                        method="POST">
-                                        @csrf
-                                        @method('delete')
-                                        <button type="submit" class="btn btn-primary btn-sm">Aceptar</button>
-                                    </form>
-                                    <button type="button" class="btn btn-secondary btn-sm"
-                                        data-bs-dismiss="modal">Cancelar</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    @endcan
                     @endforeach
                 </tbody>
             </table>
@@ -121,9 +89,3 @@
     </div>
 </div>
 @endsection
-
-@push('js')
-<script src="https://cdn.jsdelivr.net/npm/simple-datatables@7.1.2/dist/umd/simple-datatables.min.js"
-    crossorigin="anonymous"></script>
-<script src="{{ asset('js/datatables-simple-demo.js') }}"></script>
-@endpush

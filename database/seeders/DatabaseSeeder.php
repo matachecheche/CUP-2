@@ -9,23 +9,17 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            // Seguridad (orden importa: permisos → roles → usuarios)
             PermissionSeeder::class,
             RolesSeeder::class,
             UsuariosSeeder::class,
-            ClasificadoresSeeder::class,
-            CargoEmpleadosSeeder::class,
-            EmpleadosSeeder::class,
-            ResidentesSeeder::class,
-            VisitasSeeder::class,
-            TipoCuotaSeeder::class,
-            CuotaSeeder::class,
-            PagoSeeder::class,
-            EmpresaExternaSeeder::class,
-            MantenimientoSeeder::class,
-            AreaComunSeeder::class,
-            ReservaSeeder::class,
-            MultaSeeder::class,
-            ComunicadoSeeder::class,
+
+            // Datos de referencia del dominio CUP
+            // (descomenta a medida que implementes los módulos)
+            // GestionSeeder::class,
+            // CarreraSeeder::class,
+            // MateriaSeeder::class,
+            // DocenteSeeder::class,
         ]);
     }
 }

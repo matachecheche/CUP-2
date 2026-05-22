@@ -11,10 +11,19 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Esto soluciona el problema del puerto en Codespaces
+
+        // Proxy confiable (necesario para Codespaces / proxies inversos)
         $middleware->trustProxies(at: '*');
+
+        // ── Spatie Laravel Permission — aliases de middleware ─────────────
+        // Sin esto Laravel 11 no reconoce 'role:', 'permission:' ni 'role_or_permission:'
+        $middleware->alias([
+            'role'               => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //
     })->create();
-

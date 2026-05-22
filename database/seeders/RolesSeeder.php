@@ -1,6 +1,7 @@
 <?php
 
 namespace Database\Seeders;
+
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
@@ -9,45 +10,55 @@ class RolesSeeder extends Seeder
 {
     public function run(): void
     {
-        // Rol Administrador
+        // ── Administrador del Sistema ─────────────────────────────────────────
         $admin = Role::firstOrCreate(['name' => 'Administrador']);
-        $admin->syncPermissions(Permission::all()); // Todos los permisos
+        $admin->syncPermissions(Permission::all());
 
-        // Rol Residente
-        $residente = Role::firstOrCreate(['name' => 'Residente']);
-        $residente->syncPermissions([
-            'gestionar visitas',
-            'reportar-incidentes',
-            'ver comunicados',
-            'ver notificaciones',
-            'ver agenda',
-            'ver documentos',
-            'ver foro',
-            'ver calificaciones',
-        ]);
-
-        // Rol Portero
-        $portero = Role::firstOrCreate(['name' => 'Portero']);
-        $portero->syncPermissions([
-            'ver control de acceso',
-            'crear-registro-seguridad',
-            'operar porteria',
-            'ver invitaciones',
-            'ver vigilancia',
-        ]);
-
-        // Rol Directiva
-        $directiva = Role::firstOrCreate(['name' => 'Miembro de Directiva']);
-        $directiva->syncPermissions([
-            'administrar visitas',
-            'ver-registros-seguridad',   // ← Solo lectura
-            'gestionar visitas',
+        // ── Responsable de Admisiones ─────────────────────────────────────────
+        $resp = Role::firstOrCreate(['name' => 'Responsable de Admisiones']);
+        $resp->syncPermissions([
             'ver usuarios',
-            'ver roles',
-            'ver empleados',
-            'ver residentes',
             'ver bitacora',
+            'ver gestiones',
+            'ver carreras',
+            'ver materias',
+            'ver docentes',   'crear docentes',   'editar docentes',
+            'ver postulantes','crear postulantes','editar postulantes',
+            'validar requisitos postulante',
+            'ver grupos',     'crear grupos',     'editar grupos',    'eliminar grupos',
+            'generar grupos automaticos',
+            'ver horarios',   'crear horarios',   'editar horarios',
+            'ver cupos',
+            'procesar admision',
+            'ver resultados admision',
             'ver reportes',
+        ]);
+
+        // ── Docente ───────────────────────────────────────────────────────────
+        $docente = Role::firstOrCreate(['name' => 'Docente']);
+        $docente->syncPermissions([
+            'ver grupos',
+            'ver postulantes',
+            'registrar notas',
+            'ver notas',
+        ]);
+
+        // ── Postulante ────────────────────────────────────────────────────────
+        $postulante = Role::firstOrCreate(['name' => 'Postulante']);
+        $postulante->syncPermissions([
+            'ver notas propias',
+            'ver resultado propio',
+        ]);
+
+        // ── Autoridad de la Facultad ──────────────────────────────────────────
+        $autoridad = Role::firstOrCreate(['name' => 'Autoridad de la Facultad']);
+        $autoridad->syncPermissions([
+            'ver carreras',
+            'definir cupos',
+            'ver cupos',
+            'ver resultados admision',
+            'ver reportes',
+            'ver reportes ejecutivos',
         ]);
     }
 }

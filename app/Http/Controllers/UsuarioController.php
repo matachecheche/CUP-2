@@ -2,29 +2,32 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUsuarioRequest;
-use App\Http\Requests\updateUsuarioRequest;
-use App\Models\Empleado;
 use App\Models\User;
-use App\Models\Cliente;
-use Exception;
+use App\Models\Docente;
+use App\Models\Postulante;
+use App\Traits\BitacoraTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use PhpParser\Node\Stmt\TryCatch;
 use Spatie\Permission\Models\Role;
-use App\Traits\BitacoraTrait;
-use App\Models\Residente;
+use Exception;
 
 class UsuarioController extends Controller
 {
     use BitacoraTrait;
-    /**
-     * Display a listing of the resource.
-     */
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+        $this->middleware('permission:ver usuarios')->only('index');
+        $this->middleware('permission:crear usuarios')->only(['create', 'store']);
+        $this->middleware('permission:editar usuarios')->only(['edit', 'update']);
+        $this->middleware('permission:eliminar usuarios')->only('destroy');
+    }
+
     public function index()
     {
-        $users = User::all();
+        $users = User::with('roles')->get();
         return view('users.index', compact('users'));
     }
 
@@ -36,114 +39,109 @@ class UsuarioController extends Controller
 
     public function create()
     {
-        $roles = Role::all();
-        $empleados = Empleado::all();
-        $residentes = \App\Models\Residente::all();
-
-        return view('users.create', compact('roles', 'empleados', 'residentes'));
+        $roles      = Role::all();
+        $docentes   = class_exists(\App\Models\Docente::class)   ? Docente::all()   : collect();
+        $postulantes = class_exists(\App\Models\Postulante::class) ? Postulante::all() : collect();
+        return view('users.create', compact('roles', 'docentes', 'postulantes'));
     }
 
-
-    public function store(StoreUsuarioRequest $request)
+    public function store(Request $request)
     {
+        $request->validate([
+            'name'     => 'required|string|max:100',
+            'email'    => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'role'     => 'required|exists:roles,name',
+        ]);
+
         try {
             DB::beginTransaction();
 
-            // Validar que no se seleccionen ambos
-            if ($request->filled('empleado_id') && $request->filled('residente_id')) {
-                return back()->withErrors(['Ambos campos no pueden estar llenos. Selecciona solo un empleado o un residente.'])->withInput();
+            // Solo uno de los dos vínculos puede estar presente
+            if ($request->filled('docente_id') && $request->filled('postulante_id')) {
+                return back()->withErrors(['Solo puedes vincular a un docente O a un postulante, no ambos.'])->withInput();
             }
 
-            $user = new User();
-            $user->fill([
-                'name' => $request->name,
-                'email' => $request->email,
-                'empleado_id' => $request->empleado_id,
-                'residente_id' => $request->residente_id,
-                'email_verified_at' => null,
-                'password' => Hash::make($request->password)
+            $user = User::create([
+                'name'               => $request->name,
+                'email'              => $request->email,
+                'password'           => Hash::make($request->password),
+                'docente_id'         => $request->docente_id   ?: null,
+                'postulante_id'      => $request->postulante_id ?: null,
+                'email_verified_at'  => now(),
+                'activo'             => true,
             ]);
-            $user->save();
 
-            // Asignar rol
             $user->assignRole($request->role);
-
-            $this->registrarEnBitacora('Usuario creado', $user->id);
+            $this->registrarEnBitacora('Usuario creado: ' . $user->name, $user->id);
             DB::commit();
         } catch (Exception $e) {
-            DB::rollback();
+            DB::rollBack();
             $this->registrarEnBitacora('Error al crear usuario: ' . $e->getMessage());
+            return back()->withErrors(['error' => 'Error al crear el usuario.'])->withInput();
         }
 
-        return redirect()->route('users.index')->with('success', 'Usuario registrado con éxito.');
+        return redirect()->route('users.index')->with('success', 'Usuario creado con éxito.');
     }
 
-
-
-
-    public function show(string $id)
+    public function show(User $user)
     {
-        //
+        return view('users.show', compact('user'));
     }
-
 
     public function edit(User $user)
     {
-        $roles = Role::all();
-        $empleados = Empleado::all();
-        $residentes = Residente::all();
-        return view('users.edit', compact('user', 'roles', 'empleados', 'residentes'));
+        $roles       = Role::all();
+        $docentes    = class_exists(\App\Models\Docente::class)   ? Docente::all()   : collect();
+        $postulantes = class_exists(\App\Models\Postulante::class) ? Postulante::all() : collect();
+        return view('users.edit', compact('user', 'roles', 'docentes', 'postulantes'));
     }
 
-
-
-
-    public function update(updateUsuarioRequest $request, User $user)
+    public function update(Request $request, User $user)
     {
+        $request->validate([
+            'name'  => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+            'role'  => 'required|exists:roles,name',
+        ]);
+
         try {
             DB::beginTransaction();
 
-            if ($request->filled('empleado_id') && $request->filled('residente_id')) {
-                return back()->withErrors(['No se puede asignar un empleado y un residente al mismo tiempo.'])->withInput();
+            if ($request->filled('docente_id') && $request->filled('postulante_id')) {
+                return back()->withErrors(['Solo puedes vincular a un docente O a un postulante, no ambos.'])->withInput();
             }
 
             $user->update([
-                'name' => $request->name,
-                'email' => $request->email,
-                'empleado_id' => $request->empleado_id,
-                'residente_id' => $request->residente_id,
+                'name'          => $request->name,
+                'email'         => $request->email,
+                'docente_id'    => $request->docente_id   ?: null,
+                'postulante_id' => $request->postulante_id ?: null,
             ]);
 
             if ($request->filled('password')) {
-                $user->password = Hash::make($request->password);
-                $user->save(); // necesario si editamos password luego del update()
+                $request->validate(['password' => 'string|min:8|confirmed']);
+                $user->update(['password' => Hash::make($request->password)]);
             }
 
             $user->syncRoles([$request->role]);
-            $this->registrarEnBitacora('Usuario actualizado', $user->id);
+            $this->registrarEnBitacora('Usuario actualizado: ' . $user->name, $user->id);
             DB::commit();
-
-            return redirect()->route('users.index')->with('success', 'El usuario se ha actualizado');
         } catch (Exception $e) {
             DB::rollBack();
             $this->registrarEnBitacora('Error al actualizar usuario: ' . $e->getMessage());
-            return back()->withErrors(['error' => 'Ocurrió un error al actualizar el usuario.'])->withInput();
+            return back()->withErrors(['error' => 'Error al actualizar el usuario.'])->withInput();
         }
+
+        return redirect()->route('users.index')->with('success', 'Usuario actualizado con éxito.');
     }
-
-
 
     public function destroy(string $id)
     {
-        $user = User::find($id);
-        if ($user->activo == 1) {
-            User::where('id', $user->id)->update([
-                'activo' => 0
-            ]);
-            $this->registrarEnBitacora('Usuario desactivado: ', $user->id);
-            return redirect()->route('users.index')->with('success', 'El usuario ha sido dado de baja');
-        }
-
-        return redirect()->route('users.index');
+        $user = User::findOrFail($id);
+        $user->update(['activo' => !$user->activo]);
+        $estado = $user->activo ? 'activado' : 'desactivado';
+        $this->registrarEnBitacora("Usuario {$estado}: {$user->name}", $user->id);
+        return redirect()->route('users.index')->with('success', "Usuario {$estado} correctamente.");
     }
 }

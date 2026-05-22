@@ -1,109 +1,88 @@
-@extends('plantilla')
-
-@section('title', 'Editar usuario')
-
-@push('css')
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/css/select2.min.css" />
-    <link rel="stylesheet"
-        href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" />
-@endpush
+@extends('layouts.ap')
+@section('title', 'Editar Usuario')
 
 @section('content')
-    <div class="container-fluid px-4">
-        <h1 class="mt-4">Editar usuario</h1>
-        <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('users.index') }}">Usuarios</a></li>
-            <li class="breadcrumb-item active">Editar usuario</li>
-        </ol>
+<div class="container-fluid px-4">
+    <h1 class="mt-4">Editar Usuario</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('users.index') }}">Usuarios</a></li>
+        <li class="breadcrumb-item active">Editar</li>
+    </ol>
 
-        <div class="from-orange-200">
-            <form action="{{ route('users.update', ['user' => $user]) }}" method="POST">
-                @csrf
-                @method('PATCH')
-                <div class="form-group mb-2">
-                    <label for="name">Usuario</label>
-                    <input type="text" style="color: gray" class="form-control" name="name" id="name"
-                        placeholder="introduzca un nombre de usuario" value="{{ $user->name }}" readonly>
-                    @error('name')
-                        <small class="text-danger"> {{ '*' . $message }} </small>
-                    @enderror
-                </div>
-                <div class="form-group mb-2">
-                    <label for="email">Correo electrónico</label>
-                    <input type="email" class="form-control" name="email" id="email"
-                        placeholder="nombre@ejemplo.com" value="{{ $user->email }}">
-                    @error('email')
-                        <small class="text-danger"> {{ '*' . $message }} </small>
-                    @enderror
-                </div>
+    <div class="card">
+        <div class="card-header"><i class="fas fa-user-edit me-1"></i> Editar: {{ $user->name }}</div>
+        <div class="card-body">
+            @if($errors->any())
+                <div class="alert alert-danger"><ul class="mb-0">@foreach($errors->all() as $e)<li>{{ $e }}</li>@endforeach</ul></div>
+            @endif
 
-                <div class="form-group mb-2">
-                    <label for="inputPassword">Contraseña</label>
-                    <input type="password" class="form-control" name="password" id="inputPassword"
-                        placeholder="Ingrese nueva contraseña">
-                    @error('password')
-                        <small class="text-danger"> {{ '*' . $message }} </small>
-                    @enderror
-                </div>
-                <div class="form-group mb-2">
-                    <label for="empleado_id">Empleado</label>
-                    <select class="form-select" id="empleado_id" name="empleado_id" data-placeholder="Seleccione empleado">
-                        <option value="">--Seleccione empleado--</option>
-                        @foreach ($empleados as $empleado)
-                            <option value="{{ $empleado->id }}" {{ $user->empleado_id == $empleado->id ? 'selected' : '' }}>
-                                {{ $empleado->nombre }}, CI: {{ $empleado->ci }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-               
-                  <!---Roles---->
-                  <div class="row mb-4">
-                    <label for="role" class="col-lg-2 col-form-label">Seleccionar rol:</label>
-                    <div class="col-lg-4">
-                        <select name="role" id="role" class="form-select">
-                            @foreach ($roles as $item)
-                            @if ( in_array($item->name,$user->roles->pluck('name')->toArray()) )
-                            <option selected value="{{$item->name}}" @selected(old('role')==$item->name)>{{$item->name}}</option>
-                            @else
-                            <option value="{{$item->name}}" @selected(old('role')==$item->name)>{{$item->name}}</option>
-                            @endif
+            <form action="{{ route('users.update', $user) }}" method="POST">
+                @csrf @method('PUT')
+
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Nombre *</label>
+                        <input type="text" name="name" class="form-control" value="{{ old('name', $user->name) }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Email *</label>
+                        <input type="email" name="email" class="form-control" value="{{ old('email', $user->email) }}" required>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Nueva contraseña <small class="text-muted">(dejar vacío para no cambiar)</small></label>
+                        <input type="password" name="password" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Confirmar contraseña</label>
+                        <input type="password" name="password_confirmation" class="form-control">
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Rol *</label>
+                        <select name="role" class="form-select" required>
+                            <option value="">— Seleccionar —</option>
+                            @foreach($roles as $rol)
+                                <option value="{{ $rol->name }}"
+                                    {{ $user->hasRole($rol->name) ? 'selected' : '' }}>
+                                    {{ $rol->name }}
+                                </option>
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-lg-4">
-                        <div class="form-text">
-                            Escoja un rol para el usuario.
-                        </div>
+                    @if($docentes->count())
+                    <div class="col-md-6">
+                        <label class="form-label">Docente vinculado</label>
+                        <select name="docente_id" class="form-select">
+                            <option value="">— Ninguno —</option>
+                            @foreach($docentes as $d)
+                                <option value="{{ $d->id }}" {{ $user->docente_id == $d->id ? 'selected' : '' }}>
+                                    {{ $d->nombres }} {{ $d->apellidos }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
-                    <div class="col-lg-2">
-                        @error('role')
-                        <small class="text-danger">{{'*'.$message}}</small>
-                        @enderror
+                    @endif
+                    @if($postulantes->count())
+                    <div class="col-md-6">
+                        <label class="form-label">Postulante vinculado</label>
+                        <select name="postulante_id" class="form-select">
+                            <option value="">— Ninguno —</option>
+                            @foreach($postulantes as $p)
+                                <option value="{{ $p->id }}" {{ $user->postulante_id == $p->id ? 'selected' : '' }}>
+                                    {{ $p->nombres }} {{ $p->apellidos }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
+                    @endif
                 </div>
 
-                <div class="col-12 text-center">
-                    <button type="submit" class="btn btn-primary btn-sm"> Actualizar </button>
-                    <button type="reset" class="btn btn-secondary btn-sm"> Restaurar datos </button>
-                    <a href="{{ route('users.index') }}"><button type="button" class="btn btn-success btn-sm"> <i class="fa-solid fa-arrow-left"></i> Atras </button></a>                    
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary">Actualizar</button>
+                    <a href="{{ route('users.index') }}" class="btn btn-secondary ms-2">Cancelar</a>
                 </div>
             </form>
         </div>
     </div>
+</div>
 @endsection
-
-@push('js')
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.0/dist/jquery.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.full.min.js"></script>
-    <script>
-        $('#empleado_id').select2({
-            theme: "bootstrap-5",
-            width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
-            placeholder: $(this).data('placeholder'),
-        });
-    </script>
-@endpush

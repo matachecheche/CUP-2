@@ -1,3 +1,20 @@
+#!/usr/bin/env bash
+# =============================================================================
+#  fix_nav_cup.sh
+#  Reemplaza el menú lateral (navigation-menu.blade.php) para el Sistema CUP
+#  Ejecutar desde la raíz del proyecto Laravel
+# =============================================================================
+
+set -e
+GREEN='\033[0;32m'; CYAN='\033[0;36m'; NC='\033[0m'
+info()    { echo -e "${CYAN}[INFO]${NC}  $1"; }
+success() { echo -e "${GREEN}[OK]${NC}    $1"; }
+
+info "Reescribiendo resources/views/components/navigation-menu.blade.php..."
+
+mkdir -p resources/views/components
+
+cat > resources/views/components/navigation-menu.blade.php << 'BLADE'
 <div id="layoutSidenav_nav">
     <nav class="sb-sidenav accordion sb-sidenav-dark bg-black shadow" id="sidenavAccordion">
         <div class="sb-sidenav-menu">
@@ -154,3 +171,14 @@
         </div>
     </nav>
 </div>
+BLADE
+
+success "resources/views/components/navigation-menu.blade.php actualizado"
+
+info "Limpiando caché de vistas..."
+php artisan view:clear 2>/dev/null || true
+
+echo ""
+echo -e "${GREEN}══════════════════════════════════════════════════════════${NC}"
+echo -e "${GREEN}  Menú lateral reemplazado. Recarga el navegador.${NC}"
+echo -e "${GREEN}══════════════════════════════════════════════════════════${NC}"
