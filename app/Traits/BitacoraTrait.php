@@ -2,28 +2,41 @@
 
 namespace App\Traits;
 
-use App\Models\Bitacora;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
+/**
+ * Para registrar acciones CON DETALLE desde controladores.
+ * Complementa al BitacoraMiddleware (que registra navegación automáticamente).
+ *
+ * Uso:
+ *   $this->registrarEnBitacora('Creó postulante: Juan Pérez', $postulante->id, 'Postulantes');
+ */
 trait BitacoraTrait
 {
-    public function registrarEnBitacora($accion, $id_operacion = null)
+    public function registrarEnBitacora(string $accion, $id_operacion = null, string $modulo = ''): void
     {
         try {
-            $nombre = Auth::check() ? Auth::user()->name : 'Invitado';
-            Log::info("Registrando acción en bitácora: $accion por $nombre");
+            $user   = Auth::user();
+            $nombre = $user?->name ?? 'Sistema';
 
-            Bitacora::create([
-                'user_id'     => Auth::id(),
-                'usuario'     => $nombre, 
-                'accion' => $accion,
-                'fecha_hora' => now(),
-                'ip' => request()->ip(),
+            DB::table('bitacoras')->insert([
+                'user_id'      => $user?->id,
+                'usuario'      => $nombre,
+                'accion'       => substr($accion, 0, 250),
+                'modulo'       => substr($modulo, 0, 60),
+                'metodo_http'  => request()->method(),
+                'ruta'         => substr(request()->path(), 0, 255),
+                'ip'           => request()->ip(),
+                'user_agent'   => substr(request()->userAgent() ?? '', 0, 255),
+                'fecha_hora'   => now(),
                 'id_operacion' => $id_operacion,
+                'created_at'   => now(),
+                'updated_at'   => now(),
             ]);
-        } catch (\Exception $e) {
-            Log::error('Error al registrar en bitácora: ' . $e->getMessage());
+        } catch (\Throwable $e) {
+            Log::error('BitacoraTrait: ' . $e->getMessage());
         }
     }
 }

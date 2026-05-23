@@ -1,82 +1,82 @@
 @extends('layouts.ap')
-@section('title', 'Usuarios — Admisión CUP')
+@section('title', 'Usuarios del Sistema')
 
 @push('css')
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 @endpush
 
 @section('content')
-@include('layouts.partials.alert')
-
-@if(session('success'))
-<script>
-    Swal.mixin({ toast:true, position:'top-end', showConfirmButton:false, timer:2500, timerProgressBar:true })
-        .fire({ icon:'success', title:"{{ session('success') }}" });
-</script>
-@endif
-
-<div class="container-fluid px-4">
-    <h1 class="mt-4">Usuarios del Sistema</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="{{ route('panel') }}">Inicio</a></li>
-        <li class="breadcrumb-item active">Usuarios</li>
+<div class="page-header">
+    <h1>Gestión de Usuarios</h1>
+    <p class="subtitle">Administración de cuentas de acceso al sistema</p>
+    <ol class="breadcrumb">
+        <li><a href="{{ route('panel') }}">Inicio</a></li>
+        <li>Usuarios</li>
     </ol>
+</div>
 
-    @can('crear usuarios')
-    <div class="mb-3">
-        <a href="{{ route('users.create') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-user-plus me-1"></i> Nuevo Usuario
-        </a>
+@can('crear usuarios')
+<div style="margin-bottom:1rem;">
+    <a href="{{ route('users.create') }}" class="btn btn-primary">
+        <i class="fas fa-user-plus"></i> Nuevo Usuario
+    </a>
+</div>
+@endcan
+
+<div class="card">
+    <div class="card-header">
+        <i class="fas fa-users-cog"></i> Usuarios registrados
     </div>
-    @endcan
-
-    <div class="card mb-4">
-        <div class="card-header"><i class="fas fa-users me-1"></i> Listado de Usuarios</div>
-        <div class="card-body">
-            <table id="datatablesSimple" class="table table-striped table-sm">
+    <div class="card-body">
+        <div class="table-wrapper">
+            <table id="tablaUsuarios" class="cup-table" style="width:100%">
                 <thead>
                     <tr>
-                        <th>#</th><th>Nombre</th><th>Email</th>
-                        <th>Rol</th><th>Estado</th><th>Acciones</th>
+                        <th>#</th>
+                        <th>Nombre</th>
+                        <th>Correo</th>
+                        <th>Rol</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($users as $user)
                     <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td>{{ $user->name }}</td>
-                        <td>{{ $user->email }}</td>
+                        <td style="color:var(--txt-3); font-size:.8rem;">{{ $loop->iteration }}</td>
+                        <td style="font-weight:500;">{{ $user->name }}</td>
+                        <td style="color:var(--txt-3); font-size:.87rem;">{{ $user->email }}</td>
                         <td>
                             @foreach($user->getRoleNames() as $rol)
                                 @php
-                                    $color = match($rol) {
-                                        'Administrador del Sistema' => 'danger',
-                                        'Docente'                   => 'primary',
-                                        'Postulante'                => 'success',
-                                        default                     => 'secondary',
+                                    $cls = match($rol) {
+                                        'Administrador del Sistema' => 'rol-admin',
+                                        'Docente'                   => 'rol-docente',
+                                        'Postulante'                => 'rol-postulante',
+                                        default                     => '',
                                     };
                                 @endphp
-                                <span class="badge bg-{{ $color }}">{{ $rol }}</span>
+                                <span class="badge {{ $cls }}">{{ $rol }}</span>
                             @endforeach
                         </td>
                         <td>
-                            <span class="badge {{ $user->activo ? 'bg-success' : 'bg-secondary' }}">
+                            <span class="badge {{ $user->activo ? 'badge-verde' : 'badge-gris' }}">
                                 {{ $user->activo ? 'Activo' : 'Inactivo' }}
                             </span>
                         </td>
                         <td>
-                            <div class="btn-group btn-group-sm">
+                            <div style="display:flex; gap:.4rem; flex-wrap:wrap;">
                                 @can('editar usuarios')
-                                <a href="{{ route('users.edit', $user) }}" class="btn btn-warning btn-sm" title="Editar">
+                                <a href="{{ route('users.edit', $user) }}" class="btn btn-sm btn-outline" title="Editar">
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 @endcan
                                 @can('eliminar usuarios')
-                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="d-inline">
+                                <form action="{{ route('users.destroy', $user) }}" method="POST" style="display:inline;">
                                     @csrf @method('DELETE')
-                                    <button class="btn btn-sm {{ $user->activo ? 'btn-danger' : 'btn-success' }}"
-                                            title="{{ $user->activo ? 'Desactivar' : 'Activar' }}"
-                                            onclick="return confirm('¿Confirmar cambio de estado?')">
+                                    <button class="btn btn-sm {{ $user->activo ? 'btn-danger' : 'btn-primary' }}"
+                                        title="{{ $user->activo ? 'Desactivar' : 'Activar' }}"
+                                        onclick="return confirm('¿Confirmar cambio de estado?')">
                                         <i class="fas fa-{{ $user->activo ? 'ban' : 'check' }}"></i>
                                     </button>
                                 </form>
@@ -90,4 +90,21 @@
         </div>
     </div>
 </div>
+
+@push('js')
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+$(document).ready(function(){
+    $('#tablaUsuarios').DataTable({
+        language: {
+            url: 'https://cdn.datatables.net/plug-ins/1.13.6/i18n/es-ES.json'
+        },
+        pageLength: 15,
+        order: [[0,'asc']]
+    });
+});
+</script>
+@endpush
 @endsection

@@ -2,26 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Bitacora extends Model
 {
-    use HasFactory;
-
-    protected $table = 'bitacoras';
-
+    protected $table    = 'bitacoras';
     protected $fillable = [
         'user_id',
         'usuario',
         'accion',
+        'modulo',
+        'metodo_http',
+        'ruta',
         'fecha_hora',
-        'id_operacion',
         'ip',
+        'user_agent',
+        'id_operacion',
         'descripcion',
     ];
-
-    public $timestamps = true; // Esto es por defecto y manejará los campos created_at y updated_at
 
     public function user()
     {

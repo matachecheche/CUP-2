@@ -1,407 +1,206 @@
-@extends('plantilla')
+@extends('layouts.ap')
+@section('title', 'Panel de Control')
 
-@section('title', 'Panel de Control — Admisión CUP')
+@push('css')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+@endpush
 
 @section('content')
 
-<style>
-    body { background-color: #0f172a; }
-    .dark-container { background-color: #0f172a; color: #e2e8f0; }
-    .paquete-card {
-        border-radius: 16px;
-        border: 1px solid rgba(255,255,255,0.08);
-        background-color: #1e293b;
-        margin-bottom: 1.5rem;
-        overflow: hidden;
-    }
-    .paquete-header {
-        padding: 1rem 1.5rem;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        font-weight: 700;
-        font-size: 1rem;
-        border-bottom: 1px solid rgba(255,255,255,0.08);
-        user-select: none;
-    }
-    .paquete-body { padding: 1.1rem 1.5rem; }
-    .cu-item {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 0.65rem 0.9rem;
-        border-radius: 10px;
-        margin-bottom: 0.45rem;
-        text-decoration: none;
-        transition: background 0.2s;
-        font-size: 0.93rem;
-    }
-    a.cu-item:hover { background-color: rgba(255,255,255,0.07); }
-    .cu-item.disabled { color: #475569; pointer-events: none; cursor: default; }
-    .cu-badge {
-        font-size: 0.7rem; font-weight: 700;
-        padding: 2px 7px; border-radius: 6px;
-        min-width: 42px; text-align: center;
-        flex-shrink: 0;
-    }
-    .badge-done    { background:#22c55e22; color:#4ade80; border:1px solid #4ade8055; }
-    .badge-pending { background:#ffffff0a; color:#64748b; border:1px solid #33415533; }
-    .pkg-1 { background: linear-gradient(135deg,#1e3a8a,#2563eb); }
-    .pkg-2 { background: linear-gradient(135deg,#064e3b,#059669); }
-    .pkg-3 { background: linear-gradient(135deg,#7c2d12,#ea580c); }
-    .pkg-4 { background: linear-gradient(135deg,#4c1d95,#7c3aed); }
-    .pkg-5 { background: linear-gradient(135deg,#831843,#db2777); }
-    .chevron { transition: transform 0.25s; }
-    .paquete-header.collapsed .chevron { transform: rotate(-90deg); }
-    .ciclo-tag {
-        margin-left: auto;
-        font-size: 0.65rem;
-        color: #475569;
-        flex-shrink: 0;
-    }
-</style>
+<div class="page-header">
+    <h1>Panel de Control</h1>
+    <p class="subtitle">Sistema de Admisión — Curso Preuniversitario (CUP) &mdash; Facultad de Ingeniería</p>
+    <ol class="breadcrumb">
+        <li>Inicio</li>
+    </ol>
+</div>
 
-<div class="container-fluid px-4 dark-container">
+{{-- Tarjetas de acceso rápido (solo módulos activos) --}}
+<div class="stat-grid" style="margin-bottom:2rem;">
+    @can('ver usuarios')
+    <a class="stat-card" href="{{ route('users.index') }}" style="text-decoration:none;">
+        <div class="stat-icon verde"><i class="fas fa-users-cog"></i></div>
+        <div>
+            <div class="stat-value" style="font-size:1rem; font-weight:700; color:var(--verde)">Usuarios</div>
+            <div class="stat-label">Gestionar cuentas del sistema</div>
+        </div>
+    </a>
+    @endcan
 
-    <h1 class="mt-4 fw-bold text-light">Panel de Control</h1>
-    <p class="text-secondary mb-4">
-        Sistema de Admisión de Postulantes — Curso Preuniversitario (CUP)
-    </p>
+    @can('ver roles')
+    <a class="stat-card" href="{{ route('roles.index') }}" style="text-decoration:none;">
+        <div class="stat-icon oro"><i class="fas fa-user-shield"></i></div>
+        <div>
+            <div class="stat-value" style="font-size:1rem; font-weight:700; color:var(--verde)">Roles</div>
+            <div class="stat-label">Gestionar roles y permisos</div>
+        </div>
+    </a>
+    @endcan
 
-    {{-- PAQUETE 1 — Seguridad: CU-01 a CU-04 --}}
-    <div class="paquete-card">
-        <div class="paquete-header pkg-1 text-white"
-             data-bs-toggle="collapse" data-bs-target="#paquete1" aria-expanded="true">
-            <div class="d-flex align-items-center gap-3">
-                <i class="fas fa-shield-alt fa-lg"></i>
-                <span>Módulo 1 — Seguridad y Autenticación</span>
-            </div>
+    @can('ver bitacora')
+    <a class="stat-card" href="{{ route('bitacora.index') }}" style="text-decoration:none;">
+        <div class="stat-icon gris"><i class="fas fa-journal-whills"></i></div>
+        <div>
+            <div class="stat-value" style="font-size:1rem; font-weight:700; color:var(--verde)">Bitácora</div>
+            <div class="stat-label">Registro de actividad del sistema</div>
+        </div>
+    </a>
+    @endcan
+</div>
+
+{{-- Módulos del sistema --}}
+<div class="modulo-grid">
+
+    {{-- MÓDULO 1 — Seguridad --}}
+    <div class="modulo-card m1">
+        <div class="modulo-card-header" data-bs-toggle="collapse" data-bs-target="#m1body">
+            <div class="num">1</div>
+            <span>Seguridad y Autenticación</span>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
-        <div id="paquete1" class="collapse show">
-            <div class="paquete-body">
-
-                <a href="{{ route('login') }}" class="cu-item text-slate-200">
-                    <span class="cu-badge badge-done">CU-01</span>
-                    <i class="fas fa-sign-in-alt" style="color:#60a5fa"></i>
-                    Iniciar sesión
-                </a>
-
-                <a href="{{ route('logout') }}" class="cu-item text-slate-200">
-                    <span class="cu-badge badge-done">CU-02</span>
-                    <i class="fas fa-sign-out-alt" style="color:#60a5fa"></i>
-                    Cerrar sesión
-                </a>
-
-                <a href="{{ route('password.request') }}" class="cu-item text-slate-200">
-                    <span class="cu-badge badge-done">CU-03</span>
-                    <i class="fas fa-key" style="color:#60a5fa"></i>
-                    Recuperar contraseña
-                </a>
-
+        <div id="m1body" class="collapse show">
+            <div class="modulo-card-body">
+                <div class="cu-row link"><a href="{{ route('login') }}">
+                    <span class="cu-tag done">CU-01</span>
+                    <i class="cu-icon fas fa-sign-in-alt"></i> Iniciar sesión
+                </a></div>
+                <div class="cu-row link"><a href="{{ route('logout') }}">
+                    <span class="cu-tag done">CU-02</span>
+                    <i class="cu-icon fas fa-sign-out-alt"></i> Cerrar sesión
+                </a></div>
+                <div class="cu-row link"><a href="{{ route('password.request') }}">
+                    <span class="cu-tag done">CU-03</span>
+                    <i class="cu-icon fas fa-key"></i> Recuperar contraseña
+                </a></div>
                 @can('ver usuarios')
-                <a href="{{ route('users.index') }}" class="cu-item text-slate-200">
-                    <span class="cu-badge badge-done">CU-04</span>
-                    <i class="fas fa-users-cog" style="color:#60a5fa"></i>
-                    Gestionar usuarios y roles
-                </a>
+                <div class="cu-row link"><a href="{{ route('users.index') }}">
+                    <span class="cu-tag done">CU-04</span>
+                    <i class="cu-icon fas fa-users-cog"></i> Gestionar usuarios y roles
+                </a></div>
                 @endcan
-
-                @can('ver roles')
-                <a href="{{ route('roles.index') }}" class="cu-item text-slate-200">
-                    <span class="cu-badge badge-done">CU-04b</span>
-                    <i class="fas fa-user-shield" style="color:#60a5fa"></i>
-                    Gestionar roles y permisos
-                </a>
-                @endcan
-
                 @can('ver bitacora')
-                <a href="{{ route('bitacora.index') }}" class="cu-item text-slate-200">
-                    <span class="cu-badge badge-done">AUD</span>
-                    <i class="fas fa-clipboard-list" style="color:#60a5fa"></i>
-                    Auditoría / Bitácora de accesos
-                </a>
+                <div class="cu-row link"><a href="{{ route('bitacora.index') }}">
+                    <span class="cu-tag done">AUD</span>
+                    <i class="cu-icon fas fa-journal-whills"></i> Registro de bitácora
+                </a></div>
                 @endcan
-
             </div>
         </div>
     </div>
 
-    {{-- PAQUETE 2 — Gestión Académica: CU-10, CU-11, CU-12, CU-13 --}}
-    <div class="paquete-card">
-        <div class="paquete-header pkg-2 text-white"
-             data-bs-toggle="collapse" data-bs-target="#paquete2" aria-expanded="true">
-            <div class="d-flex align-items-center gap-3">
-                <i class="fas fa-university fa-lg"></i>
-                <span>Módulo 2 — Gestión Académica</span>
-            </div>
+    {{-- MÓDULO 2 — Gestión Académica --}}
+    <div class="modulo-card m2">
+        <div class="modulo-card-header" data-bs-toggle="collapse" data-bs-target="#m2body">
+            <div class="num">2</div>
+            <span>Gestión Académica</span>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
-        <div id="paquete2" class="collapse show">
-            <div class="paquete-body">
-
-                {{-- CU-13: Gestiones --}}
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-13</span>
-                    <i class="fas fa-calendar-alt"></i>
-                    Gestionar gestiones / períodos académicos
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                {{-- CU-10: Carreras --}}
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-10</span>
-                    <i class="fas fa-graduation-cap"></i>
+        <div id="m2body" class="collapse show">
+            <div class="modulo-card-body">
+                <div class="cu-row disabled">
+                    <span class="cu-tag pending">CU-13</span>
+                    <i class="cu-icon fas fa-calendar-alt"></i>
+                    Gestionar gestiones académicas
+                    <span class="cu-pending-label">Pendiente</span>
+                </div>
+                <div class="cu-row disabled">
+                    <span class="cu-tag pending">CU-10</span>
+                    <i class="cu-icon fas fa-graduation-cap"></i>
                     Gestionar carreras de la facultad
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                {{-- CU-11: Cupos --}}
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-11</span>
-                    <i class="fas fa-sliders-h"></i>
+                    <span class="cu-pending-label">Pendiente</span>
+                </div>
+                <div class="cu-row disabled">
+                    <span class="cu-tag pending">CU-11</span>
+                    <i class="cu-icon fas fa-sliders-h"></i>
                     Definir cupos por carrera y gestión
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                {{-- CU-12: Materias --}}
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-12</span>
-                    <i class="fas fa-book"></i>
+                    <span class="cu-pending-label">Pendiente</span>
+                </div>
+                <div class="cu-row disabled">
+                    <span class="cu-tag pending">CU-12</span>
+                    <i class="cu-icon fas fa-book-open"></i>
                     Gestionar materias del CUP
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
+                    <span class="cu-pending-label">Pendiente</span>
+                </div>
             </div>
         </div>
     </div>
 
-    {{-- PAQUETE 3 — Postulantes y Docentes: CU-05 a CU-09, CU-14 a CU-16 --}}
-    <div class="paquete-card">
-        <div class="paquete-header pkg-3 text-white"
-             data-bs-toggle="collapse" data-bs-target="#paquete3" aria-expanded="true">
-            <div class="d-flex align-items-center gap-3">
-                <i class="fas fa-users fa-lg"></i>
-                <span>Módulo 3 — Postulantes y Docentes</span>
-            </div>
+    {{-- MÓDULO 3 — Postulantes y Docentes --}}
+    <div class="modulo-card m3">
+        <div class="modulo-card-header" data-bs-toggle="collapse" data-bs-target="#m3body">
+            <div class="num">3</div>
+            <span>Postulantes y Docentes</span>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
-        <div id="paquete3" class="collapse show">
-            <div class="paquete-body">
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-05</span>
-                    <i class="fas fa-user-plus"></i>
-                    Registrar postulante
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-06</span>
-                    <i class="fas fa-file-upload"></i>
-                    Cargar requisitos del postulante (CI, libreta, título)
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-07</span>
-                    <i class="fas fa-check-circle"></i>
-                    Validar requisitos del postulante
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-08</span>
-                    <i class="fas fa-list-ol"></i>
-                    Seleccionar 1ª y 2ª opción de carrera
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-09</span>
-                    <i class="fas fa-search"></i>
-                    Consultar estado del postulante
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-14</span>
-                    <i class="fas fa-chalkboard-teacher"></i>
-                    Registrar docente con perfil profesional
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-15</span>
-                    <i class="fas fa-user-check"></i>
-                    Validar perfil profesional del docente
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-16</span>
-                    <i class="fas fa-clock"></i>
-                    Consultar carga horaria del docente
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
+        <div id="m3body" class="collapse show">
+            <div class="modulo-card-body">
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-05</span><i class="cu-icon fas fa-user-plus"></i> Registrar postulante <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-06</span><i class="cu-icon fas fa-file-upload"></i> Cargar requisitos del postulante <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-07</span><i class="cu-icon fas fa-check-circle"></i> Validar requisitos del postulante <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-08</span><i class="cu-icon fas fa-list-ol"></i> Seleccionar 1ª y 2ª opción de carrera <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-09</span><i class="cu-icon fas fa-search"></i> Consultar estado del postulante <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-14</span><i class="cu-icon fas fa-chalkboard-teacher"></i> Registrar docente con perfil profesional <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-15</span><i class="cu-icon fas fa-user-check"></i> Validar perfil profesional del docente <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-16</span><i class="cu-icon fas fa-clock"></i> Consultar carga horaria del docente <span class="cu-pending-label">Pendiente</span></div>
             </div>
         </div>
     </div>
 
-    {{-- PAQUETE 4 — Grupos, Horarios y Evaluación: CU-17 a CU-26 --}}
-    <div class="paquete-card">
-        <div class="paquete-header pkg-4 text-white"
-             data-bs-toggle="collapse" data-bs-target="#paquete4" aria-expanded="true">
-            <div class="d-flex align-items-center gap-3">
-                <i class="fas fa-layer-group fa-lg"></i>
-                <span>Módulo 4 — Grupos, Horarios y Evaluación</span>
-            </div>
+    {{-- MÓDULO 4 — Grupos, Horarios y Evaluación --}}
+    <div class="modulo-card m4">
+        <div class="modulo-card-header" data-bs-toggle="collapse" data-bs-target="#m4body">
+            <div class="num">4</div>
+            <span>Grupos, Horarios y Evaluación</span>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
-        <div id="paquete4" class="collapse show">
-            <div class="paquete-body">
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-17</span>
-                    <i class="fas fa-magic"></i>
-                    Calcular y generar grupos automáticamente (máx. 60)
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-18</span>
-                    <i class="fas fa-chalkboard"></i>
-                    Asignar docente a grupo y materia
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-19</span>
-                    <i class="fas fa-exclamation-triangle"></i>
-                    Validar cruces de horario
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-20</span>
-                    <i class="fas fa-calendar-week"></i>
-                    Asignar horarios y modalidad al grupo
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-21</span>
-                    <i class="fas fa-user-friends"></i>
-                    Inscribir postulantes a grupos
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-22</span>
-                    <i class="fas fa-pen"></i>
-                    Registrar notas de exámenes (3 por materia)
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-23</span>
-                    <i class="fas fa-calculator"></i>
-                    Calcular nota final por materia (30%+30%+40%)
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-24</span>
-                    <i class="fas fa-percent"></i>
-                    Calcular promedio general del postulante
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-25</span>
-                    <i class="fas fa-check-double"></i>
-                    Determinar condición aprobado / reprobado (≥60 en 4 materias)
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-26</span>
-                    <i class="fas fa-eye"></i>
-                    Consultar notas del postulante
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
+        <div id="m4body" class="collapse show">
+            <div class="modulo-card-body">
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-17</span><i class="cu-icon fas fa-magic"></i> Calcular y generar grupos automáticamente <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-18</span><i class="cu-icon fas fa-chalkboard"></i> Asignar docente a grupo y materia <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-19</span><i class="cu-icon fas fa-exclamation-triangle"></i> Validar cruces de horario <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-20</span><i class="cu-icon fas fa-calendar-week"></i> Asignar horarios y modalidad al grupo <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-21</span><i class="cu-icon fas fa-user-friends"></i> Inscribir postulantes a grupos <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-22</span><i class="cu-icon fas fa-pen-nib"></i> Registrar notas de exámenes (3 por materia) <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-23</span><i class="cu-icon fas fa-calculator"></i> Calcular nota final (30%+30%+40%) <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-24</span><i class="cu-icon fas fa-percent"></i> Calcular promedio general del postulante <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-25</span><i class="cu-icon fas fa-check-double"></i> Determinar condición aprobado/reprobado ≥60 <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-26</span><i class="cu-icon fas fa-eye"></i> Consultar notas del postulante <span class="cu-pending-label">Pendiente</span></div>
             </div>
         </div>
     </div>
 
-    {{-- PAQUETE 5 — Admisión y Reportes: CU-27 a CU-33 --}}
-    <div class="paquete-card">
-        <div class="paquete-header pkg-5 text-white"
-             data-bs-toggle="collapse" data-bs-target="#paquete5" aria-expanded="true">
-            <div class="d-flex align-items-center gap-3">
-                <i class="fas fa-chart-bar fa-lg"></i>
-                <span>Módulo 5 — Admisión y Reportes</span>
-            </div>
+    {{-- MÓDULO 5 — Admisión y Reportes --}}
+    <div class="modulo-card m5">
+        <div class="modulo-card-header" data-bs-toggle="collapse" data-bs-target="#m5body">
+            <div class="num">5</div>
+            <span>Admisión y Reportes</span>
             <i class="fas fa-chevron-down chevron"></i>
         </div>
-        <div id="paquete5" class="collapse show">
-            <div class="paquete-body">
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-27</span>
-                    <i class="fas fa-trophy"></i>
-                    Procesar admisión por primera opción de carrera
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-28</span>
-                    <i class="fas fa-random"></i>
-                    Reasignar postulantes a segunda opción
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-29</span>
-                    <i class="fas fa-bullhorn"></i>
-                    Publicar resultado final de admisión
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-30</span>
-                    <i class="fas fa-file-alt"></i>
-                    Reporte aprobados / reprobados por grupo
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-31</span>
-                    <i class="fas fa-file-chart-line"></i>
-                    Reporte admitidos por carrera y gestión
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-32</span>
-                    <i class="fas fa-history"></i>
-                    Comparativo histórico entre gestiones
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
-                <span class="cu-item disabled">
-                    <span class="cu-badge badge-pending">CU-33</span>
-                    <i class="fas fa-chart-pie"></i>
-                    Indicadores estadísticos del proceso
-                    <span class="ciclo-tag">Pendiente</span>
-                </span>
-
+        <div id="m5body" class="collapse show">
+            <div class="modulo-card-body">
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-27</span><i class="cu-icon fas fa-trophy"></i> Procesar admisión por primera opción <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-28</span><i class="cu-icon fas fa-random"></i> Reasignar postulantes a segunda opción <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-29</span><i class="cu-icon fas fa-bullhorn"></i> Publicar resultado final de admisión <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-30</span><i class="cu-icon fas fa-file-alt"></i> Reporte aprobados/reprobados por grupo <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-31</span><i class="cu-icon fas fa-file-chart-line"></i> Reporte admitidos por carrera y gestión <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-32</span><i class="cu-icon fas fa-history"></i> Comparativo histórico entre gestiones <span class="cu-pending-label">Pendiente</span></div>
+                <div class="cu-row disabled"><span class="cu-tag pending">CU-33</span><i class="cu-icon fas fa-chart-pie"></i> Indicadores estadísticos del proceso <span class="cu-pending-label">Pendiente</span></div>
             </div>
         </div>
     </div>
 
 </div>
+
+@push('js')
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+// Collapse chevron animation
+document.querySelectorAll('[data-bs-toggle="collapse"]').forEach(btn => {
+    const target = document.querySelector(btn.dataset.bsTarget);
+    if (!target) return;
+    target.addEventListener('show.bs.collapse', () => btn.classList.remove('collapsed'));
+    target.addEventListener('hide.bs.collapse', () => btn.classList.add('collapsed'));
+});
+</script>
+@endpush
 @endsection

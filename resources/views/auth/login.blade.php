@@ -1,182 +1,155 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Iniciar sesión — Sistema de Admisión CUP</title>
-
-    <link href="{{ asset('css/plantilla.css') }}" rel="stylesheet" />
-    <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js"></script>
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ingresar — Sistema de Admisión CUP</title>
+    <link href="{{ asset('css/cup.css') }}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <style>
         body {
-            background: linear-gradient(135deg, #0f172a, #1e3a5f);
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: grid;
+            place-items: center;
+            background: var(--crema);
+            background-image:
+                repeating-linear-gradient(
+                    0deg, transparent, transparent 38px,
+                    rgba(26,58,42,.04) 38px, rgba(26,58,42,.04) 39px
+                ),
+                repeating-linear-gradient(
+                    90deg, transparent, transparent 38px,
+                    rgba(26,58,42,.04) 38px, rgba(26,58,42,.04) 39px
+                );
         }
-
-        .login-wrapper {
-            width: 100%;
-            max-width: 420px;
-            padding: 1rem;
+        .login-wrap {
+            width: 100%; max-width: 420px; padding: 1.5rem;
         }
-
-        .card-login {
-            border-radius: 20px;
-            backdrop-filter: blur(12px);
-            background: rgba(255, 255, 255, 0.07);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
-            color: #f1f5f9;
+        .login-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
         }
-
-        .login-logo {
-            width: 64px;
-            height: 64px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #2563eb, #0ea5e9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1rem;
-            font-size: 1.6rem;
-            box-shadow: 0 4px 20px rgba(37,99,235,0.5);
+        .login-head {
+            background: var(--verde);
+            padding: 2rem 2rem 1.5rem;
+            text-align: center;
+            border-bottom: 4px solid var(--oro);
         }
-
-        .card-login h4 {
-            font-weight: 700;
-            letter-spacing: 0.3px;
+        .login-head .escudo {
+            width: 64px; height: 64px; border-radius: 50%;
+            background: var(--oro);
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto .9rem;
+            font-size: 1.6rem; color: var(--verde); font-weight: 900;
         }
-
-        .card-login .subtitle {
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.55);
-            margin-top: -4px;
+        .login-head h1 {
+            font-family: var(--font-display);
+            font-size: 1.5rem; font-weight: 700;
+            color: var(--white); margin: 0;
         }
-
-        .input-group-text {
-            background: rgba(255,255,255,0.1);
-            border: 1px solid rgba(255,255,255,0.15);
-            border-right: none;
-            color: #94a3b8;
-            border-radius: 10px 0 0 10px;
+        .login-head p {
+            font-size: .8rem; color: rgba(255,255,255,.6);
+            margin-top: .25rem;
         }
-
-        .form-control {
-            background: rgba(255,255,255,0.08) !important;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-left: none;
-            color: #f1f5f9 !important;
-            border-radius: 0 10px 10px 0 !important;
-            padding: 11px 14px;
+        .login-body { padding: 1.75rem 2rem 2rem; }
+        .field { margin-bottom: 1rem; }
+        .input-wrap {
+            position: relative;
         }
-
-        .form-control::placeholder { color: rgba(255,255,255,0.35); }
-        .form-control:focus {
-            outline: none;
-            box-shadow: 0 0 0 2px rgba(14,165,233,0.45);
-            border-color: rgba(14,165,233,0.5);
+        .input-wrap .inp-icon {
+            position: absolute; left: .8rem; top: 50%;
+            transform: translateY(-50%);
+            color: var(--txt-3); font-size: .88rem;
         }
-
+        .input-wrap .form-control {
+            padding-left: 2.4rem;
+        }
         .btn-login {
-            border-radius: 10px;
-            padding: 11px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #2563eb, #0ea5e9);
-            border: none;
-            color: #fff;
-            transition: 0.25s;
-            letter-spacing: 0.3px;
+            width: 100%;
+            background: var(--verde);
+            color: var(--white);
+            border: none; border-radius: 7px;
+            padding: .75rem;
+            font-family: var(--font-body);
+            font-size: .95rem; font-weight: 700;
+            cursor: pointer; transition: .2s;
+            display: flex; align-items: center; justify-content: center; gap: .5rem;
         }
-        .btn-login:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(14,165,233,0.45);
-        }
-
-        .forgot-link {
-            color: rgba(255,255,255,0.55);
-            font-size: 0.83rem;
-            text-decoration: none;
-            transition: color 0.2s;
-        }
-        .forgot-link:hover { color: #38bdf8; text-decoration: underline; }
-
-        .faculty-badge {
-            display: inline-block;
-            font-size: 0.68rem;
-            color: rgba(255,255,255,0.35);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 20px;
-            padding: 2px 10px;
-            margin-top: 6px;
+        .btn-login:hover { background: var(--verde-2); transform: translateY(-1px); box-shadow: var(--shadow); }
+        .forgot { text-align: center; margin-top: 1rem; }
+        .forgot a { font-size: .82rem; color: var(--txt-3); }
+        .forgot a:hover { color: var(--verde); }
+        .login-footer {
+            background: var(--crema); border-top: 1px solid var(--border);
+            text-align: center; padding: .6rem;
+            font-size: .7rem; color: var(--txt-3);
         }
     </style>
 </head>
-
 <body>
-<div class="login-wrapper">
-    <div class="card-login p-4">
-
-        <div class="text-center mb-4">
-            <div class="login-logo">
-                <i class="fas fa-graduation-cap"></i>
-            </div>
-            <h4>Sistema de Admisión CUP</h4>
-            <p class="subtitle">Curso Preuniversitario — Acceso al sistema</p>
-            <span class="faculty-badge">Facultad de Ingeniería</span>
+<div class="login-wrap">
+    <div class="login-card">
+        <div class="login-head">
+            <div class="escudo">C</div>
+            <h1>Sistema de Admisión CUP</h1>
+            <p>Curso Preuniversitario — Facultad de Ingeniería</p>
         </div>
 
-        @if ($errors->any())
-            @foreach ($errors->all() as $item)
-                <div class="alert alert-danger alert-dismissible fade show py-2 px-3 mb-3" role="alert">
-                    <i class="fas fa-exclamation-circle me-1"></i> {{ $item }}
-                    <button type="button" class="btn-close btn-close-white btn-sm" data-bs-dismiss="alert"></button>
-                </div>
+        <div class="login-body">
+            @if($errors->any())
+            @foreach($errors->all() as $err)
+            <div class="alert alert-danger" style="margin-bottom:.75rem;">
+                <i class="fas fa-exclamation-circle"></i> {{ $err }}
+            </div>
             @endforeach
-        @endif
+            @endif
 
-        <form action="/login" method="POST">
-            @csrf
+            <form action="/login" method="POST">
+                @csrf
+                <div class="field">
+                    <label class="form-label" for="email">Correo institucional</label>
+                    <div class="input-wrap">
+                        <i class="inp-icon fas fa-envelope"></i>
+                        <input id="email" type="email" name="email"
+                            class="form-control"
+                            value="{{ old('email') }}"
+                            placeholder="usuario@cup.edu.bo"
+                            autocomplete="email" autofocus>
+                    </div>
+                </div>
 
-            <div class="input-group mb-3">
-                <span class="input-group-text">
-                    <i class="fas fa-envelope fa-sm"></i>
-                </span>
-                <input type="email" name="email"
-                    class="form-control"
-                    placeholder="Correo institucional"
-                    value="{{ old('email') }}"
-                    autocomplete="email" autofocus>
-            </div>
+                <div class="field">
+                    <label class="form-label" for="password">Contraseña</label>
+                    <div class="input-wrap">
+                        <i class="inp-icon fas fa-lock"></i>
+                        <input id="password" type="password" name="password"
+                            class="form-control"
+                            placeholder="••••••••"
+                            autocomplete="current-password">
+                    </div>
+                </div>
 
-            <div class="input-group mb-4">
-                <span class="input-group-text">
-                    <i class="fas fa-lock fa-sm"></i>
-                </span>
-                <input type="password" name="password"
-                    class="form-control"
-                    placeholder="Contraseña"
-                    autocomplete="current-password">
-            </div>
-
-            <div class="d-grid mb-3">
-                <button type="submit" class="btn btn-login">
-                    <i class="fas fa-sign-in-alt me-2"></i>Ingresar
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Ingresar al Sistema
                 </button>
-            </div>
 
-            <div class="text-center">
-                <a href="{{ route('password.request') }}" class="forgot-link">
-                    <i class="fas fa-key me-1"></i> ¿Olvidaste tu contraseña?
-                </a>
-            </div>
-        </form>
+                <div class="forgot">
+                    <a href="{{ route('password.request') }}">
+                        <i class="fas fa-key" style="margin-right:.3rem;"></i>
+                        ¿Olvidaste tu contraseña?
+                    </a>
+                </div>
+            </form>
+        </div>
 
+        <div class="login-footer">
+            © {{ date('Y') }} CUP — Todos los derechos reservados
+        </div>
     </div>
 </div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

@@ -35,7 +35,7 @@
                 @can('ver bitacora')
                 <a class="nav-link d-flex align-items-center gap-2" href="{{ route('bitacora.index') }}">
                     <div class="sb-nav-link-icon"><i class="fas fa-clipboard-list"></i></div>
-                    <span>Auditoría / Bitácora</span>
+                    <span>Bitácora / Bitácora</span>
                 </a>
                 @endcan
 
