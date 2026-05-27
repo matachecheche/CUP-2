@@ -67,7 +67,7 @@
       @can('ver postulantes')
       <div class="cr2x lnk"><a href="{{ route('postulantes.create') }}"><span class="ctg dn">CU-05</span><i class="ci2 fas fa-user-plus"></i>Registrar postulante</a></div>
       <div class="cr2x lnk"><a href="{{ route('postulantes.index') }}"><span class="ctg dn">CU-06</span><i class="ci2 fas fa-file-upload"></i>Cargar requisitos (CI, libreta, título)</a></div>
-      <div class="cr2x lnk"><a href="{{ route('postulantes.index') }}"><span class="ctg dn">CU-07</span><i class="ci2 fas fa-check-circle"></i>Validar requisitos</a></div>
+      <div class="cr2x lnk"><a href="{{ route('postulantes.index') }}?filtro=sin_documentos"><span class="ctg dn">CU-07</span><i class="ci2 fas fa-check-circle"></i>Validar requisitos del postulante</a></div>
       <div class="cr2x lnk"><a href="{{ route('postulantes.create') }}"><span class="ctg dn">CU-08</span><i class="ci2 fas fa-list-ol"></i>Seleccionar 1ª y 2ª opción de carrera</a></div>
       <div class="cr2x lnk"><a href="{{ route('postulantes.index') }}"><span class="ctg dn">CU-09</span><i class="ci2 fas fa-search"></i>Consultar estado del postulante</a></div>
       @else
@@ -87,7 +87,7 @@
       @endcan
       @can('ver carreras')
       <div class="cr2x lnk"><a href="{{ route('carreras.index') }}"><span class="ctg dn">CU-10</span><i class="ci2 fas fa-graduation-cap"></i>Gestionar carreras de la facultad</a></div>
-      <div class="cr2x lnk"><a href="{{ route('carreras.index') }}"><span class="ctg dn">CU-11</span><i class="ci2 fas fa-sliders-h"></i>Definir cupos por carrera y gestión</a></div>
+      <div class="cr2x lnk"><a href="{{ route('cupos.index') }}"><span class="ctg dn">CU-11</span><i class="ci2 fas fa-sliders-h"></i>Definir cupos por carrera y gestión</a></div>
       @endcan
       @can('ver materias')
       <div class="cr2x lnk"><a href="{{ route('materias.index') }}"><span class="ctg dn">CU-12</span><i class="ci2 fas fa-book-open"></i>Gestionar materias del CUP</a></div>

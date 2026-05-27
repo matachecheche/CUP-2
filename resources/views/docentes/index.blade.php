@@ -8,7 +8,7 @@
 @can('crear docentes')<div style="margin-bottom:1rem"><a href="{{ route('docentes.create') }}" class="btn bp"><i class="fas fa-user-plus"></i> Registrar Docente</a></div>@endcan
 <div class="card"><div class="card-hd"><i class="fas fa-chalkboard-teacher"></i>Docentes contratados para el CUP</div><div class="card-bd">
 <div class="tw"><table id="td" class="ct" style="width:100%">
-<thead><tr><th>#</th><th>CI</th><th>Apellidos y Nombres</th><th>Área</th><th>Título</th><th>Maestría</th><th>Estado</th><th>Acciones</th></tr></thead>
+<thead><tr><th>#</th><th>CI</th><th>Apellidos y Nombres</th><th>Área</th><th>Título</th><th>Maestría</th><th>Perfil OK</th><th>Estado</th><th>Acciones</th></tr></thead>
 <tbody>@foreach($docentes as $d)<tr>
 <td style="color:var(--t3);font-size:.8rem">{{ $loop->iteration }}</td>
 <td style="font-family:'Courier New',monospace;font-size:.84rem">{{ $d->ci }}</td>
@@ -16,6 +16,12 @@
 <td style="font-size:.83rem">{{ $d->area_formacion??'—' }}</td>
 <td style="font-size:.81rem;color:var(--t3)">{{ Str::limit($d->titulo_profesional??'',35) }}</td>
 <td style="font-size:.81rem;color:var(--t3)">{{ $d->maestria ? '✓ '.Str::limit($d->maestria,25) : '—' }}</td>
+<td style="text-align:center">
+@php $ok = $d->titulo_profesional && $d->maestria && $d->diplomado_educacion_superior; @endphp
+<span class="bg {{ $ok ? 'bv':'bd' }}" title="{{ $ok ? 'Perfil completo':'Falta título, maestría o diplomado' }}">
+  {{ $ok ? '✔ Válido':'✘ Incompleto' }}
+</span>
+</td>
 <td><span class="bg {{ $d->estado?'bv':'bg2' }}">{{ $d->estado?'Activo':'Inactivo' }}</span></td>
 <td><div class="bg3">
 <a href="{{ route('docentes.show',$d) }}" class="btn bsm bo2"><i class="fas fa-eye"></i></a>

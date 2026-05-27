@@ -15,7 +15,11 @@ class PermissionSeeder extends Seeder {
             'ver docentes','crear docentes','editar docentes','eliminar docentes',
             'ver grupos','crear grupos','editar grupos','eliminar grupos',
             'ver notas','crear notas','editar notas',
-            'procesar admision','ver reportes',
+            'ver cupos','crear cupos','editar cupos',
+            'ver grupos','crear grupos','editar grupos','eliminar grupos',
+            'ver notas','crear notas','editar notas',
+            'ver admision','procesar admision','publicar admision',
+            'ver reportes',
         ];
         foreach($perms as $p) Permission::firstOrCreate(['name'=>$p,'guard_name'=>'web']);
     }

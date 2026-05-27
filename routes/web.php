@@ -1,6 +1,6 @@
 <?php
 use App\Http\Controllers\Auth\{ForgotPasswordController,ResetPasswordController};
-use App\Http\Controllers\{AdmisionController,BitacoraController,CarreraController,DocenteController,GestionController,GrupoController,HomeController,LoginController,LogoutController,MateriaController,NotaController,PostulanteController,RoleController,UsuarioController};
+use App\Http\Controllers\{AdmisionController,CupoController,BitacoraController,CarreraController,DocenteController,GestionController,GrupoController,HomeController,LoginController,LogoutController,MateriaController,NotaController,PostulanteController,RoleController,UsuarioController};
 use Illuminate\Support\Facades\{Auth,DB,Route};
 
 // Recuperación de contraseña
@@ -31,6 +31,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('gestiones', GestionController::class);
     Route::resource('carreras',  CarreraController::class);
     Route::post('carreras/{carrera}/cupos',[CarreraController::class,'storeCupo'])->name('carreras.cupos');
+    // CU-11: Vista dedicada de cupos (tabla carrera × gestión)
+    Route::get('cupos',  [CupoController::class,'index'])->name('cupos.index');
+    Route::post('cupos', [CupoController::class,'store'])->name('cupos.store');
     Route::resource('materias',  MateriaController::class);
 
     // Módulo 4: Asignación de Grupos y Docentes (CU-14 a CU-16)

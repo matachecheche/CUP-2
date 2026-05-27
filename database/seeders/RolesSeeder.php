@@ -8,7 +8,7 @@ class RolesSeeder extends Seeder {
         $admin->syncPermissions(Permission::all());
 
         $doc = Role::firstOrCreate(['name'=>'Docente','guard_name'=>'web']);
-        $doc->syncPermissions(['ver grupos','ver postulantes','ver notas','crear notas','editar notas']);
+        $doc->syncPermissions(['ver grupos','ver postulantes','ver notas','crear notas','editar notas','ver admision']);
 
         $pos = Role::firstOrCreate(['name'=>'Postulante','guard_name'=>'web']);
         $pos->syncPermissions(['ver postulantes']);

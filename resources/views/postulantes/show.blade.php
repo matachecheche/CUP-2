@@ -30,6 +30,45 @@
 @endif
 </div></div>
 </div></div>
+
+{{-- CU-07: Validar requisitos --}}
+@can("editar postulantes")
+<div class="card" style="max-width:840px;margin-top:1rem">
+  <div class="card-hd"><i class="fas fa-clipboard-check"></i>Validar requisitos — CU-07</div>
+  <div class="card-bd">
+    @if(!$postulante->tieneDocumentos())
+    <div class="al al-w" style="margin-bottom:.75rem">
+      <i class="fas fa-exclamation-triangle"></i>
+      Faltan documentos. El postulante no puede acceder al CUP hasta completarlos.
+    </div>
+    @else
+    <div class="al al-v" style="margin-bottom:.75rem">
+      <i class="fas fa-check-circle"></i>
+      Todos los documentos presentados. Postulante habilitado.
+    </div>
+    @endif
+    <form action="{{ route("postulantes.validar",$postulante) }}" method="POST">
+      @csrf @method("PATCH")
+      <div style="display:flex;flex-direction:column;gap:.5rem;margin-bottom:1rem">
+        <label class="fck">
+          <input type="checkbox" name="doc_ci" value="1" {{ $postulante->doc_ci?"checked":"" }}>
+          <span>Fotocopia de Cédula de Identidad (CI)</span>
+        </label>
+        <label class="fck">
+          <input type="checkbox" name="doc_libreta_colegio" value="1" {{ $postulante->doc_libreta_colegio?"checked":"" }}>
+          <span>Libreta de colegio</span>
+        </label>
+        <label class="fck">
+          <input type="checkbox" name="doc_titulo_bachiller" value="1" {{ $postulante->doc_titulo_bachiller?"checked":"" }}>
+          <span>Título de Bachiller</span>
+        </label>
+      </div>
+      <button type="submit" class="btn bp bsm"><i class="fas fa-save"></i> Guardar validación</button>
+    </form>
+  </div>
+</div>
+@endcan
+
 <div style="margin-top:1rem;display:flex;gap:.75rem">
 @can('editar postulantes')<a href="{{ route('postulantes.edit',$postulante) }}" class="btn bw"><i class="fas fa-edit"></i> Editar</a>@endcan
 <a href="{{ route('postulantes.index') }}" class="btn bo2"><i class="fas fa-arrow-left"></i> Volver</a></div>

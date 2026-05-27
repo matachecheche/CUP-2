@@ -23,6 +23,12 @@ class PostulanteController extends Controller {
                 ->withErrors(['documentos'=>'Para completar la inscripción debes presentar los tres documentos: CI, Libreta de colegio y Título de Bachiller.'])
                 ->withInput();
         }
+        // CU-07 guard: los 3 documentos son obligatorios para inscribirse
+        if (empty($d["doc_ci"]) || empty($d["doc_libreta_colegio"]) || empty($d["doc_titulo_bachiller"])) {
+            return back()
+                ->withErrors(["documentos" => "⚠ Requisitos incompletos: el postulante debe presentar los 3 documentos (CI, Libreta de colegio y Título de Bachiller) para completar la inscripción."])
+                ->withInput();
+        }
         $p=Postulante::create($d);
         $this->registrarEnBitacora("Registró postulante: {$p->nombre_completo} CI:{$p->ci}",$p->id,'Postulantes');
         return redirect()->route('postulantes.index')->with('success',"Postulante «{$p->nombre_completo}» registrado.");
@@ -40,5 +46,27 @@ class PostulanteController extends Controller {
         $n=$postulante->nombre_completo; $postulante->delete();
         $this->registrarEnBitacora("Eliminó postulante: {$n}",null,'Postulantes');
         return redirect()->route('postulantes.index')->with('success',"Postulante «{$n}» eliminado.");
+    }
+
+    /** CU-07: Valida/invalida requisitos de un postulante */
+    public function validarRequisitos(\Illuminate\Http\Request $r, \App\Models\Postulante $postulante) {
+        $d = $r->validate([
+            "doc_ci"              => "boolean",
+            "doc_libreta_colegio" => "boolean",
+            "doc_titulo_bachiller"=> "boolean",
+        ]);
+        $d["doc_ci"]               = $r->boolean("doc_ci");
+        $d["doc_libreta_colegio"]  = $r->boolean("doc_libreta_colegio");
+        $d["doc_titulo_bachiller"] = $r->boolean("doc_titulo_bachiller");
+        $postulante->update($d);
+        $completo = $postulante->tieneDocumentos();
+        if ($completo && $postulante->estado === "inscrito") {
+            $postulante->update(["estado" => "en_curso"]);
+        }
+        $this->registrarEnBitacora("Validó requisitos del postulante: {$postulante->nombre_completo}", $postulante->id, "Postulantes");
+        return redirect()->route("postulantes.show", $postulante)
+            ->with("success", $completo
+                ? "✔ Requisitos completos. Postulante habilitado para el CUP."
+                : "⚠ Requisitos incompletos. El postulante no puede acceder al CUP hasta completarlos.");
     }
 }

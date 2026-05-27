@@ -82,6 +82,8 @@
     @can('ver carreras')
     <a class="ni {{ request()->routeIs('carreras.*') ? 'act':'' }}" href="{{ route('carreras.index') }}">
       <i class="ico fas fa-graduation-cap"></i>Carreras y Cupos</a>
+    <a class="ni {{ request()->routeIs('cupos.*') ? 'act':'' }}" href="{{ route('cupos.index') }}">
+      <i class="ico fas fa-sliders-h"></i>Cupos por Gestión</a>
     @else
     <span class="ni pnd"><i class="ico fas fa-graduation-cap"></i>Carreras y Cupos<span class="nbg">Sin acceso</span></span>
     @endcan
@@ -103,21 +105,36 @@
     @else
     <span class="ni pnd"><i class="ico fas fa-chalkboard-teacher"></i>Docentes<span class="nbg">Sin acceso</span></span>
     @endcan
-    <span class="ni pnd"><i class="ico fas fa-layer-group"></i>Grupos y Horarios<span class="nbg">Ciclo 2</span></span>
+    @can('ver grupos')
+    <a class="ni {{ request()->routeIs('grupos.*') ? 'act':'' }}" href="{{ route('grupos.index') }}">
+      <i class="ico fas fa-layer-group"></i>Grupos y Horarios</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-layer-group"></i>Grupos y Horarios<span class="nbg">Sin acceso</span></span>
+    @endcan
   </div>
   <div class="sbdiv"></div>
 
   {{-- Módulo 5: Exámenes --}}
   <div class="sb-sec">
     <div class="sb-ttl">📝 Exámenes y Control Académico</div>
-    <span class="ni pnd"><i class="ico fas fa-pen-nib"></i>Registro de Notas<span class="nbg">Ciclo 2</span></span>
+    @can('ver notas')
+    <a class="ni {{ request()->routeIs('notas.*') ? 'act':'' }}" href="{{ route('notas.index') }}">
+      <i class="ico fas fa-pen-nib"></i>Registro de Notas</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-pen-nib"></i>Registro de Notas<span class="nbg">Sin acceso</span></span>
+    @endcan
   </div>
   <div class="sbdiv"></div>
 
   {{-- Módulo 6: Panel Administrativo --}}
   <div class="sb-sec">
     <div class="sb-ttl">📊 Panel Administrativo</div>
-    <span class="ni pnd"><i class="ico fas fa-trophy"></i>Proceso de Admisión<span class="nbg">Ciclo 2</span></span>
+    @can('ver admision')
+    <a class="ni {{ request()->routeIs('admision.*') ? 'act':'' }}" href="{{ route('admision.index') }}">
+      <i class="ico fas fa-trophy"></i>Proceso de Admisión</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-trophy"></i>Proceso de Admisión<span class="nbg">Sin acceso</span></span>
+    @endcan
     <span class="ni pnd"><i class="ico fas fa-chart-bar"></i>Reportes y Estadísticas<span class="nbg">Ciclo 2</span></span>
   </div>
   <div class="sbdiv"></div>
