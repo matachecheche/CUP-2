@@ -67,7 +67,21 @@ class NotaController extends Controller
             'examen1'       => 'required|numeric|min:0|max:100',
             'examen2'       => 'required|numeric|min:0|max:100',
             'examen3'       => 'required|numeric|min:0|max:100',
+        ], [
+            'examen1.max' => 'La nota del examen 1 debe estar entre 0 y 100.',
+            'examen2.max' => 'La nota del examen 2 debe estar entre 0 y 100.',
+            'examen3.max' => 'La nota del examen 3 debe estar entre 0 y 100.',
+            'examen1.min' => 'La nota del examen 1 debe estar entre 0 y 100.',
+            'examen2.min' => 'La nota del examen 2 debe estar entre 0 y 100.',
+            'examen3.min' => 'La nota del examen 3 debe estar entre 0 y 100.',
         ]);
+
+        // Validar que el postulante esté inscrito en el grupo
+        $inscrito = DB::table('grupo_postulante')
+            ->where(['grupo_id'=>$d['grupo_id'],'postulante_id'=>$d['postulante_id']])->exists();
+        if (!$inscrito) {
+            return back()->withErrors(['postulante_id'=>'El postulante no está inscrito en este grupo.'])->withInput();
+        }
 
         $nota = Nota::updateOrCreate(
             ['postulante_id'=>$d['postulante_id'],'materia_id'=>$d['materia_id'],'grupo_id'=>$d['grupo_id']],
@@ -94,6 +108,10 @@ class NotaController extends Controller
             'examen1'=>'required|numeric|min:0|max:100',
             'examen2'=>'required|numeric|min:0|max:100',
             'examen3'=>'required|numeric|min:0|max:100',
+        ], [
+            'examen1.max' => 'La nota del examen 1 debe estar entre 0 y 100.',
+            'examen2.max' => 'La nota del examen 2 debe estar entre 0 y 100.',
+            'examen3.max' => 'La nota del examen 3 debe estar entre 0 y 100.',
         ]);
         $nota->update($d);
         $nota->calcularNotaFinal();

@@ -16,7 +16,7 @@ return new class extends Migration {
             $table->enum('sexo',['M','F','Otro'])->nullable();
             $table->string('direccion',200)->nullable();
             $table->string('telefono',20)->nullable();
-            $table->string('email',100)->nullable();
+            $table->string('email',100)->unique();
             $table->string('colegio_procedencia',150)->nullable();
             $table->string('ciudad',80)->nullable();
             $table->boolean('doc_ci')->default(false);

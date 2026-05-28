@@ -15,18 +15,29 @@ class PostulanteController extends Controller {
     public function index() { return view('postulantes.index',['postulantes'=>Postulante::with('primeraOpcion','segundaOpcion','gestion')->orderBy('apellidos')->get()]); }
     public function create() { return view('postulantes.create',['carreras'=>Carrera::where('estado',true)->orderBy('nombre')->get(),'gestiones'=>Gestion::orderByDesc('fecha_inicio')->get()]); }
     public function store(Request $r) {
-        $d=$r->validate(['gestion_id'=>'required|exists:gestiones,id','primera_opcion_id'=>'required|exists:carreras,id','segunda_opcion_id'=>'required|exists:carreras,id|different:primera_opcion_id','ci'=>'required|string|max:20|unique:postulantes,ci','nombres'=>'required|string|max:100','apellidos'=>'required|string|max:100','fecha_nacimiento'=>'nullable|date|before:today','sexo'=>'nullable|in:M,F,Otro','direccion'=>'nullable|string|max:200','telefono'=>'nullable|string|max:20','email'=>'nullable|email|max:100','colegio_procedencia'=>'nullable|string|max:150','ciudad'=>'nullable|string|max:80','doc_ci'=>'boolean','doc_libreta_colegio'=>'boolean','doc_titulo_bachiller'=>'boolean']);
+        $d=$r->validate([
+            'gestion_id'        => 'required|exists:gestiones,id',
+            'primera_opcion_id' => 'required|exists:carreras,id',
+            'segunda_opcion_id' => 'required|exists:carreras,id|different:primera_opcion_id',
+            'ci'                => 'required|string|max:20|regex:/^[0-9]{6,10}(-[A-Z]{1,2})?$/|unique:postulantes,ci',
+            'nombres'           => 'required|string|max:100|regex:/^[\pL\s\.\-]+$/u',
+            'apellidos'         => 'required|string|max:100|regex:/^[\pL\s\.\-]+$/u',
+            'fecha_nacimiento'  => 'required|date|before:today',
+            'sexo'              => 'required|in:M,F,Otro',
+            'direccion'         => 'nullable|string|max:200',
+            'telefono'          => 'nullable|regex:/^[67][0-9]{7}$/',
+            'email'             => 'required|email|max:100|unique:postulantes,email',
+            'colegio_procedencia'=>'required|string|max:150',
+            'ciudad'            => 'required|string|max:80',
+            'doc_ci'            => 'boolean',
+            'doc_libreta_colegio'=>'boolean',
+            'doc_titulo_bachiller'=>'boolean',
+        ], $this->messages());
         $d['doc_ci']=$r->boolean('doc_ci'); $d['doc_libreta_colegio']=$r->boolean('doc_libreta_colegio'); $d['doc_titulo_bachiller']=$r->boolean('doc_titulo_bachiller');
-        // CU-07: los 3 documentos son obligatorios
+        // CU-07: los 3 documentos son obligatorios para inscribirse
         if (!$d['doc_ci'] || !$d['doc_libreta_colegio'] || !$d['doc_titulo_bachiller']) {
             return back()
-                ->withErrors(['documentos'=>'Para completar la inscripción debes presentar los tres documentos: CI, Libreta de colegio y Título de Bachiller.'])
-                ->withInput();
-        }
-        // CU-07 guard: los 3 documentos son obligatorios para inscribirse
-        if (empty($d["doc_ci"]) || empty($d["doc_libreta_colegio"]) || empty($d["doc_titulo_bachiller"])) {
-            return back()
-                ->withErrors(["documentos" => "⚠ Requisitos incompletos: el postulante debe presentar los 3 documentos (CI, Libreta de colegio y Título de Bachiller) para completar la inscripción."])
+                ->withErrors(['documentos'=>'⚠ Requisitos incompletos: debes marcar los 3 documentos (CI, Libreta de colegio y Título de Bachiller).'])
                 ->withInput();
         }
         $p=Postulante::create($d);
@@ -36,11 +47,43 @@ class PostulanteController extends Controller {
     public function show(Postulante $postulante) { $postulante->load('primeraOpcion','segundaOpcion','gestion'); return view('postulantes.show',compact('postulante')); }
     public function edit(Postulante $postulante) { return view('postulantes.edit',['postulante'=>$postulante,'carreras'=>Carrera::where('estado',true)->orderBy('nombre')->get(),'gestiones'=>Gestion::orderByDesc('fecha_inicio')->get()]); }
     public function update(Request $r, Postulante $postulante) {
-        $d=$r->validate(['gestion_id'=>'required|exists:gestiones,id','primera_opcion_id'=>'required|exists:carreras,id','segunda_opcion_id'=>"required|exists:carreras,id|different:primera_opcion_id",'ci'=>"required|string|max:20|unique:postulantes,ci,{$postulante->id}",'nombres'=>'required|string|max:100','apellidos'=>'required|string|max:100','fecha_nacimiento'=>'nullable|date|before:today','sexo'=>'nullable|in:M,F,Otro','direccion'=>'nullable|string|max:200','telefono'=>'nullable|string|max:20','email'=>'nullable|email|max:100','colegio_procedencia'=>'nullable|string|max:150','ciudad'=>'nullable|string|max:80','doc_ci'=>'boolean','doc_libreta_colegio'=>'boolean','doc_titulo_bachiller'=>'boolean']);
+        $d=$r->validate([
+            'gestion_id'        => 'required|exists:gestiones,id',
+            'primera_opcion_id' => 'required|exists:carreras,id',
+            'segunda_opcion_id' => 'required|exists:carreras,id|different:primera_opcion_id',
+            'ci'                => "required|string|max:20|regex:/^[0-9]{6,10}(-[A-Z]{1,2})?$/|unique:postulantes,ci,{$postulante->id}",
+            'nombres'           => 'required|string|max:100|regex:/^[\pL\s\.\-]+$/u',
+            'apellidos'         => 'required|string|max:100|regex:/^[\pL\s\.\-]+$/u',
+            'fecha_nacimiento'  => 'required|date|before:today',
+            'sexo'              => 'required|in:M,F,Otro',
+            'direccion'         => 'nullable|string|max:200',
+            'telefono'          => 'nullable|regex:/^[67][0-9]{7}$/',
+            'email'             => "required|email|max:100|unique:postulantes,email,{$postulante->id}",
+            'colegio_procedencia'=>'required|string|max:150',
+            'ciudad'            => 'required|string|max:80',
+            'doc_ci'            => 'boolean',
+            'doc_libreta_colegio'=>'boolean',
+            'doc_titulo_bachiller'=>'boolean',
+        ], $this->messages());
         $d['doc_ci']=$r->boolean('doc_ci'); $d['doc_libreta_colegio']=$r->boolean('doc_libreta_colegio'); $d['doc_titulo_bachiller']=$r->boolean('doc_titulo_bachiller');
         $postulante->update($d);
         $this->registrarEnBitacora("Actualizó postulante: {$postulante->nombre_completo}",$postulante->id,'Postulantes');
         return redirect()->route('postulantes.index')->with('success',"Postulante actualizado.");
+    }
+
+    private function messages(): array {
+        return [
+            'ci.regex'                  => 'CI inválido (formato: 6-10 dígitos, opcional sufijo -LP, -SC, etc.).',
+            'ci.unique'                 => 'Ya existe un postulante con ese CI.',
+            'email.unique'              => 'Ya existe un postulante con ese email.',
+            'email.required'            => 'El correo electrónico es obligatorio.',
+            'email.email'               => 'El correo electrónico no tiene un formato válido.',
+            'nombres.regex'             => 'Los nombres solo pueden contener letras, espacios, punto y guion.',
+            'apellidos.regex'           => 'Los apellidos solo pueden contener letras, espacios, punto y guion.',
+            'telefono.regex'            => 'El teléfono debe iniciar con 6 o 7 y tener 8 dígitos.',
+            'segunda_opcion_id.different'=>'La 2ª opción debe ser diferente de la 1ª opción.',
+            'fecha_nacimiento.before'   => 'La fecha de nacimiento debe ser anterior a hoy.',
+        ];
     }
     public function destroy(Postulante $postulante) {
         $n=$postulante->nombre_completo; $postulante->delete();

@@ -1,0 +1,282 @@
+@startuml database
+' ============================================================
+'  Sistema de Admisión CUP — Modelo Entidad-Relación
+'  Base de datos: cup_db (PostgreSQL)
+'  Generado a partir del esquema real de la BD
+'  Convenciones:  PK = llave primaria | FK = llave foránea
+'                 * = NOT NULL | U = UNIQUE
+' ============================================================
+
+skinparam linetype ortho
+skinparam shadowing false
+hide circle
+skinparam class {
+  BackgroundColor White
+  BorderColor #2C3E50
+  ArrowColor #2C3E50
+}
+
+' ===================== MÓDULO ACADÉMICO =====================
+
+entity "gestiones" as gestiones {
+  * id : bigint <<PK>>
+  --
+  * descripcion : varchar(50) <<U>>
+  * fecha_inicio : date
+  * fecha_fin : date
+  * estado : varchar  // planificacion|inscripcion|en_curso|finalizado
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "carreras" as carreras {
+  * id : bigint <<PK>>
+  --
+  * nombre : varchar(100) <<U>>
+  descripcion : text
+  * estado : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "materias" as materias {
+  * id : bigint <<PK>>
+  --
+  * nombre : varchar(100) <<U>>
+  area_formacion : varchar(50)
+  descripcion : text
+  * estado : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "docentes" as docentes {
+  * id : bigint <<PK>>
+  --
+  * ci : varchar(20) <<U>>
+  * nombres : varchar(100)
+  * apellidos : varchar(100)
+  telefono : varchar(20)
+  email : varchar(100) <<U>>
+  profesion : varchar(100)
+  maestria : varchar(150)
+  diplomado_educacion_superior : varchar(150)
+  area_formacion : varchar(50)
+  * estado : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "postulantes" as postulantes {
+  * id : bigint <<PK>>
+  --
+  * gestion_id : bigint <<FK>>
+  * primera_opcion_id : bigint <<FK>>
+  * segunda_opcion_id : bigint <<FK>>
+  * ci : varchar(20) <<U>>
+  * nombres : varchar(100)
+  * apellidos : varchar(100)
+  fecha_nacimiento : date
+  telefono : varchar(20)
+  email : varchar(100)
+  * doc_ci : boolean
+  * doc_libreta_colegio : boolean
+  * doc_titulo_bachiller : boolean
+  * estado : varchar  // inscrito|en_curso|aprobado|no_aprobado|admitido|admitido_segunda_opcion|no_admitido
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "cupos_carrera" as cupos_carrera {
+  * id : bigint <<PK>>
+  --
+  * carrera_id : bigint <<FK>>
+  * gestion_id : bigint <<FK>>
+  * cantidad_maxima : integer
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  U (carrera_id, gestion_id)
+}
+
+entity "grupos" as grupos {
+  * id : bigint <<PK>>
+  --
+  * gestion_id : bigint <<FK>>
+  * codigo : varchar(20) <<U>>
+  * turno : varchar  // mañana|tarde|noche
+  * modalidad : varchar  // presencial|virtual
+  * capacidad_maxima : integer
+  * estado : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "grupo_postulante" as grupo_postulante {
+  * id : bigint <<PK>>
+  --
+  * grupo_id : bigint <<FK>>
+  * postulante_id : bigint <<FK>>
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  U (grupo_id, postulante_id)
+}
+
+entity "asignaciones" as asignaciones {
+  * id : bigint <<PK>>
+  --
+  * grupo_id : bigint <<FK>>
+  * docente_id : bigint <<FK>>
+  * materia_id : bigint <<FK>>
+  * dia : varchar  // lunes..sabado
+  * hora_inicio : time
+  * hora_fin : time
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  U (grupo_id, materia_id)
+}
+
+entity "notas" as notas {
+  * id : bigint <<PK>>
+  --
+  * postulante_id : bigint <<FK>>
+  * materia_id : bigint <<FK>>
+  * grupo_id : bigint <<FK>>
+  examen1 : numeric(5,2)
+  examen2 : numeric(5,2)
+  examen3 : numeric(5,2)
+  nota_final : numeric(5,2)
+  aprobado : boolean
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  U (postulante_id, materia_id, grupo_id)
+}
+
+entity "admisiones" as admisiones {
+  * id : bigint <<PK>>
+  --
+  * postulante_id : bigint <<FK>> <<U>>
+  * gestion_id : bigint <<FK>>
+  promedio_general : numeric(5,2)
+  carrera_asignada_id : bigint <<FK>>
+  * resultado : varchar  // pendiente|admitido_primera|admitido_segunda|no_admitido
+  * publicado : boolean
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+' ===================== MÓDULO SEGURIDAD =====================
+
+entity "users" as users {
+  * id : bigint <<PK>>
+  --
+  * name : varchar(255)
+  * email : varchar(255) <<U>>
+  email_verified_at : timestamp
+  * password : varchar(255)
+  docente_id : bigint <<FK>>
+  postulante_id : bigint <<FK>>
+  * activo : boolean
+  remember_token : varchar(100)
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "bitacoras" as bitacoras {
+  * id : bigint <<PK>>
+  --
+  user_id : bigint <<FK>>
+  * accion : varchar(100)
+  * fecha_hora : timestamp
+  id_operacion : bigint
+  ip : varchar(20)
+  modulo : varchar(60)
+  metodo_http : varchar(10)
+  ruta : varchar(255)
+  user_agent : varchar(255)
+  usuario : varchar(120)
+  descripcion : text
+  created_at : timestamp
+  updated_at : timestamp
+}
+
+entity "roles" as roles {
+  * id : bigint <<PK>>
+  --
+  * name : varchar(255)
+  * guard_name : varchar(255)
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  U (name, guard_name)
+}
+
+entity "permissions" as permissions {
+  * id : bigint <<PK>>
+  --
+  * name : varchar(255)
+  * guard_name : varchar(255)
+  created_at : timestamp
+  updated_at : timestamp
+  --
+  U (name, guard_name)
+}
+
+entity "model_has_roles" as model_has_roles {
+  * role_id : bigint <<PK>> <<FK>>
+  * model_type : varchar(255) <<PK>>
+  * model_id : bigint <<PK>>
+}
+
+entity "model_has_permissions" as model_has_permissions {
+  * permission_id : bigint <<PK>> <<FK>>
+  * model_type : varchar(255) <<PK>>
+  * model_id : bigint <<PK>>
+}
+
+entity "role_has_permissions" as role_has_permissions {
+  * permission_id : bigint <<PK>> <<FK>>
+  * role_id : bigint <<PK>> <<FK>>
+}
+
+' ===================== RELACIONES =====================
+
+' --- Académicas ---
+gestiones   ||--o{ postulantes      : gestion_id
+carreras    ||--o{ postulantes      : primera_opcion_id
+carreras    ||--o{ postulantes      : segunda_opcion_id
+
+carreras    ||--o{ cupos_carrera    : carrera_id
+gestiones   ||--o{ cupos_carrera    : gestion_id
+
+gestiones   ||--o{ grupos           : gestion_id
+
+grupos      ||--o{ grupo_postulante : grupo_id
+postulantes ||--o{ grupo_postulante : postulante_id
+
+grupos      ||--o{ asignaciones     : grupo_id
+docentes    ||--o{ asignaciones     : docente_id
+materias    ||--o{ asignaciones     : materia_id
+
+postulantes ||--o{ notas            : postulante_id
+materias    ||--o{ notas            : materia_id
+grupos      ||--o{ notas            : grupo_id
+
+postulantes ||--|| admisiones       : postulante_id
+gestiones   ||--o{ admisiones       : gestion_id
+carreras    ||--o{ admisiones       : carrera_asignada_id
+
+' --- Seguridad ---
+docentes    ||--o{ users            : docente_id
+postulantes ||--o{ users            : postulante_id
+users       ||--o{ bitacoras        : user_id
+
+roles       ||--o{ model_has_roles        : role_id
+permissions ||--o{ model_has_permissions  : permission_id
+roles       ||--o{ role_has_permissions   : role_id
+permissions ||--o{ role_has_permissions   : permission_id
+
+@enduml

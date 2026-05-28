@@ -15,7 +15,16 @@ class CarreraController extends Controller {
     public function index() { return view('carreras.index',['carreras'=>Carrera::orderBy('nombre')->get()]); }
     public function create() { return view('carreras.create'); }
     public function store(Request $r) {
-        $d=$r->validate(['nombre'=>'required|string|max:100|unique:carreras,nombre','sigla'=>'nullable|string|max:10','descripcion'=>'nullable|string','estado'=>'boolean']);
+        $d=$r->validate([
+            'nombre'      => 'required|string|min:3|max:100|unique:carreras,nombre',
+            'sigla'       => 'nullable|string|min:2|max:5|regex:/^[A-Za-z]{2,5}$/',
+            'descripcion' => 'nullable|string',
+            'estado'      => 'boolean',
+        ], [
+            'nombre.unique' => 'Ya existe una carrera con ese nombre.',
+            'sigla.regex'   => 'La sigla debe tener entre 2 y 5 letras (sin números ni símbolos).',
+        ]);
+        if (!empty($d['sigla'])) $d['sigla'] = strtoupper($d['sigla']);
         $d['estado']=$r->boolean('estado',true);
         $c=Carrera::create($d);
         $this->registrarEnBitacora("Creó carrera: {$c->nombre}",$c->id,'Carreras');
@@ -28,7 +37,16 @@ class CarreraController extends Controller {
     }
     public function edit(Carrera $carrera) { return view('carreras.edit',compact('carrera')); }
     public function update(Request $r, Carrera $carrera) {
-        $d=$r->validate(['nombre'=>"required|string|max:100|unique:carreras,nombre,{$carrera->id}",'sigla'=>'nullable|string|max:10','descripcion'=>'nullable|string','estado'=>'boolean']);
+        $d=$r->validate([
+            'nombre'      => "required|string|min:3|max:100|unique:carreras,nombre,{$carrera->id}",
+            'sigla'       => 'nullable|string|min:2|max:5|regex:/^[A-Za-z]{2,5}$/',
+            'descripcion' => 'nullable|string',
+            'estado'      => 'boolean',
+        ], [
+            'nombre.unique' => 'Ya existe una carrera con ese nombre.',
+            'sigla.regex'   => 'La sigla debe tener entre 2 y 5 letras (sin números ni símbolos).',
+        ]);
+        if (!empty($d['sigla'])) $d['sigla'] = strtoupper($d['sigla']);
         $d['estado']=$r->boolean('estado',true); $carrera->update($d);
         $this->registrarEnBitacora("Actualizó carrera: {$carrera->nombre}",$carrera->id,'Carreras');
         return redirect()->route('carreras.index')->with('success',"Carrera actualizada.");
@@ -39,7 +57,12 @@ class CarreraController extends Controller {
         return redirect()->route('carreras.index')->with('success',"Carrera «{$n}» eliminada.");
     }
     public function storeCupo(Request $r, Carrera $carrera) {
-        $d=$r->validate(['gestion_id'=>'required|exists:gestiones,id','cantidad_maxima'=>'required|integer|min:1|max:9999']);
+        $d=$r->validate([
+            'gestion_id'      => 'required|exists:gestiones,id',
+            'cantidad_maxima' => 'required|integer|min:1|max:9999',
+        ], [
+            'cantidad_maxima.min' => 'El cupo debe ser un número mayor a 0.',
+        ]);
         $c=CupoCarrera::updateOrCreate(['carrera_id'=>$carrera->id,'gestion_id'=>$d['gestion_id']],['cantidad_maxima'=>$d['cantidad_maxima']]);
         $this->registrarEnBitacora("Definió cupo {$c->cantidad_maxima} para {$carrera->nombre}",$carrera->id,'Carreras');
         return redirect()->route('carreras.show',$carrera)->with('success','Cupo definido correctamente.');

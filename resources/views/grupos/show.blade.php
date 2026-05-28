@@ -76,12 +76,12 @@
 <div class="card" style="max-width:900px;margin-bottom:1.25rem">
   <div class="card-hd"><i class="fas fa-user-tie"></i>CU-18 — Asignar docente a materia (con CU-19 validación de cruces)</div>
   <div class="card-bd">
-    <form action="{{ route('grupos.asignarDocente',$grupo) }}" method="POST">
+    <form action="{{ route('grupos.asignarDocente',$grupo) }}" method="POST" novalidate>
       @csrf
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:.75rem">
         <div>
           <label class="fl">Materia <span class="rq">*</span></label>
-          <select name="materia_id" class="fs" required>
+          <select name="materia_id" class="fs @error('materia_id') is-invalid @enderror" required>
             <option value="">— Seleccionar —</option>
             @foreach($materias as $m)
             <option value="{{ $m->id }}" {{ old('materia_id')==$m->id?'selected':'' }}>
@@ -91,10 +91,11 @@
             </option>
             @endforeach
           </select>
+          @error('materia_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div>
           <label class="fl">Docente <span class="rq">*</span></label>
-          <select name="docente_id" class="fs" required>
+          <select name="docente_id" class="fs @error('docente_id') is-invalid @enderror" required>
             <option value="">— Seleccionar —</option>
             @foreach($docentes as $d)
             <option value="{{ $d->id }}" {{ old('docente_id')==$d->id?'selected':'' }}>
@@ -103,31 +104,47 @@
             </option>
             @endforeach
           </select>
+          @error('docente_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem;margin-bottom:.75rem">
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.75rem;margin-bottom:.75rem">
         <div>
           <label class="fl">Día <span class="rq">*</span></label>
-          <select name="dia" class="fs" required>
+          <select name="dia" class="fs @error('dia') is-invalid @enderror" required>
             <option value="">— Día —</option>
             @foreach(['lunes','martes','miercoles','jueves','viernes','sabado'] as $dia)
             <option value="{{ $dia }}" {{ old('dia')===$dia?'selected':'' }}>{{ ucfirst($dia) }}</option>
             @endforeach
           </select>
+          @error('dia')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div>
           <label class="fl">Hora inicio <span class="rq">*</span></label>
-          <input type="time" name="hora_inicio" class="fc" value="{{ old('hora_inicio','07:00') }}" required>
+          <input type="time" name="hora_inicio"
+                 class="fc @error('hora_inicio') is-invalid @enderror"
+                 value="{{ old('hora_inicio','07:00') }}" required>
+          @error('hora_inicio')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div>
           <label class="fl">Hora fin <span class="rq">*</span></label>
-          <input type="time" name="hora_fin" class="fc" value="{{ old('hora_fin','09:00') }}" required>
+          <input type="time" name="hora_fin"
+                 class="fc @error('hora_fin') is-invalid @enderror"
+                 value="{{ old('hora_fin','09:00') }}" required>
+          @error('hora_fin')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+        </div>
+        <div>
+          <label class="fl">Aula</label>
+          <input type="text" name="aula"
+                 class="fc @error('aula') is-invalid @enderror"
+                 value="{{ old('aula') }}" maxlength="30" pattern="[A-Za-z0-9\-]+"
+                 placeholder="Ej: A-101">
+          @error('aula')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
       </div>
       <div class="al al-w" style="margin-bottom:.75rem;font-size:.82rem">
         <i class="fas fa-shield-alt"></i>
-        CU-19: El sistema <strong>rechazará</strong> la asignación si el docente ya tiene
-        otro grupo en el mismo día y horario.
+        El sistema <strong>rechazará</strong> la asignación si: (a) hay cruce de horario,
+        (b) el docente ya tiene 4 grupos, o (c) el docente no pertenece al área de la materia.
       </div>
       <button type="submit" class="btn bp bsm"><i class="fas fa-user-plus"></i> Asignar docente</button>
     </form>
@@ -148,7 +165,7 @@
       <p style="color:var(--t3);text-align:center;padding:.75rem">Sin asignaciones. Usa el formulario de arriba.</p>
     @else
     <table class="ct">
-      <thead><tr><th>Materia</th><th>Docente</th><th>Área</th><th>Día</th><th>Horario</th></tr></thead>
+      <thead><tr><th>Materia</th><th>Docente</th><th>Área</th><th>Día</th><th>Horario</th><th>Aula</th></tr></thead>
       <tbody>
         @foreach($grupo->asignaciones as $a)
         <tr>
@@ -157,6 +174,7 @@
           <td style="font-size:.82rem;color:var(--t3)">{{ $a->docente?->area_formacion }}</td>
           <td>{{ ucfirst($a->dia) }}</td>
           <td>{{ $a->hora_inicio }} — {{ $a->hora_fin }}</td>
+          <td>{{ $a->aula ?? '—' }}</td>
         </tr>
         @endforeach
       </tbody>

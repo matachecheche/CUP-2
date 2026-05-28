@@ -46,10 +46,15 @@ class UsuarioController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'name'     => 'required|string|max:100',
-            'email'    => 'required|email|unique:users,email',
+            'name'     => 'required|string|max:100|regex:/^[\pL\s\.\-]+$/u',
+            'email'    => 'required|email|max:100|unique:users,email',
             'password' => 'required|string|min:8|confirmed',
             'role'     => 'required|exists:roles,name',
+        ], [
+            'name.regex'       => 'El nombre solo puede contener letras, espacios, punto y guion.',
+            'email.unique'     => 'Ya existe un usuario con ese email.',
+            'password.min'     => 'La contraseña debe tener al menos 8 caracteres.',
+            'password.confirmed'=> 'La confirmación de la contraseña no coincide.',
         ]);
 
         // Validar que no se vinculen ambos tipos a la vez
@@ -57,6 +62,15 @@ class UsuarioController extends Controller
             return back()
                 ->withErrors(['vínculo' => 'Un usuario solo puede vincularse a un Docente O a un Postulante, no ambos.'])
                 ->withInput();
+        }
+
+        // Coherencia rol↔vínculo
+        $rol = $request->role;
+        if ($rol === 'Docente' && !$request->filled('docente_id')) {
+            return back()->withErrors(['docente_id'=>'El rol Docente requiere vincular un docente.'])->withInput();
+        }
+        if ($rol === 'Postulante' && !$request->filled('postulante_id')) {
+            return back()->withErrors(['postulante_id'=>'El rol Postulante requiere vincular un postulante.'])->withInput();
         }
 
         try {
@@ -98,15 +112,26 @@ class UsuarioController extends Controller
     public function update(Request $request, User $user)
     {
         $request->validate([
-            'name'  => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email,' . $user->id,
+            'name'  => 'required|string|max:100|regex:/^[\pL\s\.\-]+$/u',
+            'email' => 'required|email|max:100|unique:users,email,' . $user->id,
             'role'  => 'required|exists:roles,name',
+        ], [
+            'name.regex'  => 'El nombre solo puede contener letras, espacios, punto y guion.',
+            'email.unique'=> 'Ya existe un usuario con ese email.',
         ]);
 
         if ($request->filled('docente_id') && $request->filled('postulante_id')) {
             return back()
                 ->withErrors(['vínculo' => 'Un usuario solo puede vincularse a un Docente O a un Postulante, no ambos.'])
                 ->withInput();
+        }
+
+        $rol = $request->role;
+        if ($rol === 'Docente' && !$request->filled('docente_id')) {
+            return back()->withErrors(['docente_id'=>'El rol Docente requiere vincular un docente.'])->withInput();
+        }
+        if ($rol === 'Postulante' && !$request->filled('postulante_id')) {
+            return back()->withErrors(['postulante_id'=>'El rol Postulante requiere vincular un postulante.'])->withInput();
         }
 
         try {

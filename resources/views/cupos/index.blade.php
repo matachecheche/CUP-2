@@ -16,12 +16,15 @@
 <div class="card" style="max-width:640px; margin-bottom:1.5rem">
   <div class="card-hd"><i class="fas fa-sliders-h"></i> Definir / actualizar cupo</div>
   <div class="card-bd">
-    <form action="{{ route('cupos.store') }}" method="POST">
+    @if($errors->any())
+    <div class="al al-d" style="margin-bottom:1rem"><i class="fas fa-exclamation-triangle"></i> Hay errores en el formulario. Revisa los campos marcados en rojo.</div>
+    @endif
+    <form action="{{ route('cupos.store') }}" method="POST" novalidate>
       @csrf
       <div class="fr c3g">
         <div>
           <label class="fl">Carrera <span class="rq">*</span></label>
-          <select name="carrera_id" class="fs" required id="sel-carrera">
+          <select name="carrera_id" class="fs @error('carrera_id') is-invalid @enderror" required id="sel-carrera">
             <option value="">— Seleccionar —</option>
             @foreach($carreras as $c)
               <option value="{{ $c->id }}" {{ old('carrera_id')==$c->id ? 'selected':'' }}>
@@ -29,10 +32,11 @@
               </option>
             @endforeach
           </select>
+          @error('carrera_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div>
           <label class="fl">Gestión <span class="rq">*</span></label>
-          <select name="gestion_id" class="fs" required id="sel-gestion">
+          <select name="gestion_id" class="fs @error('gestion_id') is-invalid @enderror" required id="sel-gestion">
             <option value="">— Seleccionar —</option>
             @foreach($gestiones as $g)
               <option value="{{ $g->id }}" {{ old('gestion_id')==$g->id ? 'selected':'' }}>
@@ -40,11 +44,14 @@
               </option>
             @endforeach
           </select>
+          @error('gestion_id')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div>
           <label class="fl">Cupo máximo <span class="rq">*</span></label>
-          <input type="number" name="cantidad_maxima" class="fc" id="inp-cupo"
+          <input type="number" name="cantidad_maxima"
+                 class="fc @error('cantidad_maxima') is-invalid @enderror" id="inp-cupo"
                  min="1" max="9999" value="{{ old('cantidad_maxima', 60) }}" required>
+          @error('cantidad_maxima')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
       </div>
       <div class="al al-w" style="margin:.75rem 0 .75rem">

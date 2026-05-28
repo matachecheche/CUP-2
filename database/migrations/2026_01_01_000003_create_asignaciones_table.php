@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->enum('dia', ['lunes', 'martes', 'miercoles', 'jueves', 'viernes', 'sabado']);
             $table->time('hora_inicio');
             $table->time('hora_fin');
+            $table->string('aula',30)->nullable();
             $table->unique(['grupo_id', 'materia_id']);
             $table->timestamps();
         });

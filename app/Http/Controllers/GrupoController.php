@@ -114,7 +114,7 @@ class GrupoController extends Controller
         return redirect()->route('grupos.show',$grupo)->with('success','Grupo actualizado.');
     }
 
-    /** CU-18 + CU-19: Asignar docente validando cruces de horario */
+    /** CU-18 + CU-19: Asignar docente validando cruces de horario y afinidad de área */
     public function asignarDocente(Request $r, Grupo $grupo)
     {
         $d = $r->validate([
@@ -123,7 +123,21 @@ class GrupoController extends Controller
             'dia'         => 'required|in:lunes,martes,miercoles,jueves,viernes,sabado',
             'hora_inicio' => 'required|date_format:H:i',
             'hora_fin'    => 'required|date_format:H:i|after:hora_inicio',
+            'aula'        => 'nullable|string|max:30|regex:/^[A-Za-z0-9\-]+$/',
+        ], [
+            'hora_fin.after'  => 'La hora de fin debe ser posterior a la hora de inicio.',
+            'aula.regex'      => 'El aula solo puede contener letras, números y guiones.',
         ]);
+
+        // Afinidad de área: el docente debe ser del área de la materia
+        $docente = Docente::find($d['docente_id']);
+        $materia = Materia::find($d['materia_id']);
+        if (!empty($docente->area_formacion) && !empty($materia->area_formacion)
+            && $docente->area_formacion !== $materia->area_formacion) {
+            return back()->withErrors(['docente_id' =>
+                "⚠ Afinidad de área incorrecta: el docente «{$docente->nombre_completo}» es de «{$docente->area_formacion}» y no puede dictar «{$materia->nombre}» («{$materia->area_formacion}»)."
+            ])->withInput();
+        }
 
         // CU-19 — validar cruce de horario del docente
         $cruce = Asignacion::where('docente_id', $d['docente_id'])
@@ -163,7 +177,8 @@ class GrupoController extends Controller
             ['docente_id'  => $d['docente_id'],
              'dia'         => $d['dia'],
              'hora_inicio' => $d['hora_inicio'],
-             'hora_fin'    => $d['hora_fin']]
+             'hora_fin'    => $d['hora_fin'],
+             'aula'        => $d['aula'] ?? null]
         );
         $doc = Docente::find($d['docente_id']);
         $mat = Materia::find($d['materia_id']);

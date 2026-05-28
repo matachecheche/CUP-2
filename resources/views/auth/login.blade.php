@@ -45,21 +45,29 @@ body{min-height:100vh;display:grid;place-items:center;background:var(--cr);
       <div class="al al-d" style="margin-bottom:.75rem"><i class="fas fa-exclamation-circle"></i> {{ $err }}</div>
       @endforeach
       @endif
-      <form action="/login" method="POST">
+      <form action="/login" method="POST" novalidate>
         @csrf
         <div class="fld">
           <label class="fl" for="email">Correo institucional</label>
           <div class="iw">
             <i class="ii fas fa-envelope"></i>
-            <input id="email" type="email" name="email" class="fc" value="{{ old('email') }}" placeholder="usuario@cup.edu.bo" autocomplete="email" autofocus>
+            <input id="email" type="email" name="email"
+                   class="fc @error('email') is-invalid @enderror"
+                   value="{{ old('email') }}" required maxlength="100"
+                   placeholder="usuario@cup.edu.bo" autocomplete="email" autofocus>
           </div>
+          @error('email')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div class="fld">
           <label class="fl" for="password">Contraseña</label>
           <div class="iw">
             <i class="ii fas fa-lock"></i>
-            <input id="password" type="password" name="password" class="fc" placeholder="••••••••" autocomplete="current-password">
+            <input id="password" type="password" name="password"
+                   class="fc @error('password') is-invalid @enderror"
+                   required minlength="8"
+                   placeholder="••••••••" autocomplete="current-password">
           </div>
+          @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <button type="submit" class="btn-lg"><i class="fas fa-sign-in-alt"></i> Ingresar al Sistema</button>
         <div class="fgt"><a href="{{ route('password.request') }}"><i class="fas fa-key"></i> ¿Olvidaste tu contraseña?</a></div>
