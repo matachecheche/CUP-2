@@ -3,7 +3,7 @@
 @push('css')<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">@endpush
 @section('content')
-<div class="ph"><h1>Registro de Postulantes</h1><p class="sub">CU-05 a CU-09 — Inscripción al Curso Preuniversitario (CUP)</p>
+<div class="ph"><h1>Registro de Postulantes</h1><p class="sub">CU-05 — Gestión de postulantes al Curso Preuniversitario (CUP)</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Postulantes</li></ol></div>
 @can('crear postulantes')<div style="margin-bottom:1rem"><a href="{{ route('postulantes.create') }}" class="btn bp"><i class="fas fa-user-plus"></i> Registrar Postulante</a></div>@endcan
 <div class="card"><div class="card-hd"><i class="fas fa-users"></i>Postulantes inscritos</div><div class="card-bd">

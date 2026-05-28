@@ -4,7 +4,7 @@
 @section('content')
 <div class="ph">
   <h1>Cupos por Carrera y Gestión</h1>
-  <p class="sub">CU-11 — Cuántos alumnos puede admitir cada carrera por semestre</p>
+  <p class="sub">CU-08 — Cuántos alumnos puede admitir cada carrera por semestre</p>
   <ol class="bc">
     <li><a href="{{ route('panel') }}">Inicio</a></li>
     <li><a href="{{ route('carreras.index') }}">Carreras</a></li>

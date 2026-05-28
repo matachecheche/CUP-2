@@ -16,7 +16,7 @@ class AdmisionController extends Controller
         $this->middleware('permission:procesar admision');
     }
 
-    /** CU-27/CU-28: Vista del proceso de admisión */
+    /** CU-16/CU-17: Vista del proceso de admisión */
     public function index()
     {
         $gestion    = Gestion::where('estado','en_curso')->first();
@@ -37,7 +37,7 @@ class AdmisionController extends Controller
         return view('admision.index', compact('gestion','admisiones','resumen'));
     }
 
-    /** CU-27/CU-28: Procesa la admisión para la gestión activa */
+    /** CU-16/CU-17: Procesa la admisión para la gestión activa */
     public function procesar()
     {
         $gestion = Gestion::where('estado','en_curso')->firstOrFail();
@@ -81,7 +81,7 @@ class AdmisionController extends Controller
         return redirect()->route('admision.index')->with('success',"Admisión procesada: {$total} postulantes evaluados.");
     }
 
-    /** CU-29: Publicar resultados */
+    /** CU-18: Publicar resultados */
     public function publicar()
     {
         $gestion = Gestion::where('estado','en_curso')->firstOrFail();

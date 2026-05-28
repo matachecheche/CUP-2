@@ -3,7 +3,7 @@
 @push('css')<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">@endpush
 @section('content')
-<div class="ph"><h1>Gestiones Académicas</h1><p class="sub">CU-13 — Periodos del Curso Preuniversitario</p>
+<div class="ph"><h1>Gestiones Académicas</h1><p class="sub">CU-06 — Periodos del Curso Preuniversitario</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Gestiones</li></ol></div>
 @can('crear gestiones')<div style="margin-bottom:1rem"><a href="{{ route('gestiones.create') }}" class="btn bp"><i class="fas fa-plus"></i> Nueva Gestión</a></div>@endcan
 <div class="card"><div class="card-hd"><i class="fas fa-calendar-alt"></i>Gestiones registradas</div><div class="card-bd">

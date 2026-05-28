@@ -4,10 +4,8 @@
 <div class="ph">
   <h1>Grupo {{ $grupo->codigo }}</h1>
   <p class="sub">
-    CU-18 Asignar docente ·
-    CU-19 Validar cruces de horario ·
-    CU-20 Horario/modalidad ·
-    CU-21 Inscribir postulantes
+    CU-11 Editar horario/modalidad e inscribir postulantes ·
+    CU-12 Asignar docente y validar cruces de horario
   </p>
   <ol class="bc">
     <li><a href="{{ route('panel') }}">Inicio</a></li>
@@ -36,10 +34,10 @@
     </div>
   </div>
 
-  {{-- CU-20: Editar horario y modalidad --}}
+  {{-- CU-11: Editar horario y modalidad --}}
   @can('editar grupos')
   <div class="card">
-    <div class="card-hd"><i class="fas fa-clock"></i>CU-20 — Editar horario y modalidad</div>
+    <div class="card-hd"><i class="fas fa-clock"></i>CU-11 — Editar horario y modalidad</div>
     <div class="card-bd">
       <form action="{{ route('grupos.update',$grupo) }}" method="POST">
         @csrf @method('PUT')
@@ -71,10 +69,10 @@
 
 </div>
 
-{{-- CU-18 + CU-19: Asignar docente con validación de cruce --}}
+{{-- CU-12: Asignar docente con validación de cruce --}}
 @can('editar grupos')
 <div class="card" style="max-width:900px;margin-bottom:1.25rem">
-  <div class="card-hd"><i class="fas fa-user-tie"></i>CU-18 — Asignar docente a materia (con CU-19 validación de cruces)</div>
+  <div class="card-hd"><i class="fas fa-user-tie"></i>CU-12 — Asignar docente a materia (con validación de cruces)</div>
   <div class="card-bd">
     <form action="{{ route('grupos.asignarDocente',$grupo) }}" method="POST" novalidate>
       @csrf
@@ -152,7 +150,7 @@
 </div>
 @endcan
 
-{{-- Tabla asignaciones actuales (CU-18/19) --}}
+{{-- Tabla asignaciones actuales (CU-12) --}}
 <div class="card" style="max-width:900px;margin-bottom:1.25rem">
   <div class="card-hd">
     <i class="fas fa-table"></i>Asignaciones actuales
@@ -183,10 +181,10 @@
   </div>
 </div>
 
-{{-- CU-21: Inscribir postulantes --}}
+{{-- CU-11: Inscribir postulantes --}}
 @can('editar grupos')
 <div class="card" style="max-width:900px;margin-bottom:1.25rem">
-  <div class="card-hd"><i class="fas fa-users"></i>CU-21 — Inscribir postulantes al grupo</div>
+  <div class="card-hd"><i class="fas fa-users"></i>CU-11 — Inscribir postulantes al grupo</div>
   <div class="card-bd">
     @if($sinGrupo->isEmpty())
       <div class="al al-v" style="margin-bottom:.5rem">

@@ -3,7 +3,7 @@
 @section('content')
 <div class="ph">
   <h1>Grupos del CUP</h1>
-  <p class="sub">CU-17 Generar · CU-18/19 Asignar docentes · CU-20 Horarios · CU-21 Inscribir postulantes</p>
+  <p class="sub">CU-11 Generar grupos e inscribir postulantes · CU-12 Asignar docentes con horarios</p>
   <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Grupos</li></ol>
 </div>
 
@@ -44,7 +44,7 @@
       @csrf
       <button type="submit" class="btn bp"
               onclick="return confirm('¿Generar los grupos necesarios automáticamente?\n\nFórmula: ⌈{{ $totalInscritos }} ÷ 70⌉ = {{ $gruposNecesarios }} grupo(s)')">
-        <i class="fas fa-magic"></i> CU-17: Generar grupos automáticamente
+        <i class="fas fa-magic"></i> CU-11: Generar grupos automáticamente
       </button>
     </form>
   </div>

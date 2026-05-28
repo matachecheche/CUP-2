@@ -1,7 +1,7 @@
 @extends('layouts.ap')
 @section('title','Registrar Docente')
 @section('content')
-<div class="ph"><h1>Registrar Docente</h1><p class="sub">CU-14 — Requisitos: título profesional, maestría y diplomado en educación superior</p>
+<div class="ph"><h1>Registrar Docente</h1><p class="sub">CU-10 — Requisitos: título profesional, maestría y diplomado en educación superior</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li><a href="{{ route('docentes.index') }}">Docentes</a></li><li>Registrar</li></ol></div>
 
 @if($errors->any())
@@ -57,7 +57,7 @@
       <option value="{{ $a }}" {{ old('area_formacion')==$a?'selected':'' }}>{{ $a }}</option>
     @endforeach
   </select>
-  <p class="fh">Determina qué materias puede dictar (CU-15).</p>
+  <p class="fh">Determina qué materias puede dictar (CU-10).</p>
   @error('area_formacion')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
 </div>
 </div>

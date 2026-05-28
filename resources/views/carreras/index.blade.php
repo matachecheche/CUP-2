@@ -3,7 +3,7 @@
 @push('css')<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.1/dist/css/bootstrap.min.css">@endpush
 @section('content')
-<div class="ph"><h1>Carreras y Cupos</h1><p class="sub">CU-10, CU-11 — Las 4 carreras de la FICCT</p>
+<div class="ph"><h1>Carreras y Cupos</h1><p class="sub">CU-07 / CU-08 — Las 4 carreras de la FICCT</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Carreras</li></ol></div>
 @can('crear carreras')<div style="margin-bottom:1rem"><a href="{{ route('carreras.create') }}" class="btn bp"><i class="fas fa-plus"></i> Nueva Carrera</a></div>@endcan
 <div class="card"><div class="card-hd"><i class="fas fa-graduation-cap"></i>Carreras de la Facultad FICCT</div><div class="card-bd">

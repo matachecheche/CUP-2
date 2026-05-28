@@ -2,7 +2,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
-/** CU-17 a CU-21 */
+/** CU-11 / CU-12 */
 class Grupo extends Model {
     protected $table    = 'grupos';
     protected $fillable = ['gestion_id','codigo','turno','modalidad','capacidad_maxima','estado'];

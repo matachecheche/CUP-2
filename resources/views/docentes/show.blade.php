@@ -1,7 +1,7 @@
 @extends('layouts.ap')
 @section('title',$docente->nombre_completo)
 @section('content')
-<div class="ph"><h1>{{ $docente->nombre_completo }}</h1><p class="sub">CU-15 — Perfil profesional del docente</p>
+<div class="ph"><h1>{{ $docente->nombre_completo }}</h1><p class="sub">CU-10 — Perfil profesional del docente</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li><a href="{{ route('docentes.index') }}">Docentes</a></li><li>Perfil</li></ol></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:780px">
 <div class="card"><div class="card-hd"><i class="fas fa-user"></i>Datos personales</div><div class="card-bd" style="font-size:.88rem">

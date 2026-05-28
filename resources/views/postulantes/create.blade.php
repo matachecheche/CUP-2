@@ -101,7 +101,7 @@
   @error('direccion')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
 </div>
 
-<div class="fs-t" style="margin-top:1.25rem">Opciones de carrera (CU-08)</div>
+<div class="fs-t" style="margin-top:1.25rem">Opciones de carrera (CU-05)</div>
 <div class="fr c2g">
 <div>
   <label class="fl">1ª Opción de carrera <span class="rq">*</span></label>
@@ -124,7 +124,7 @@
 </div>
 </div>
 
-<div class="fs-t" style="margin-top:1.25rem">Documentos requeridos (CU-06)</div>
+<div class="fs-t" style="margin-top:1.25rem">Documentos requeridos (CU-05)</div>
 <div class="al al-w" style="margin-bottom:.75rem"><i class="fas fa-info-circle"></i> Los tres documentos son obligatorios para completar la inscripción (CI, libreta de colegio y título de bachiller).</div>
 <div style="display:flex;flex-direction:column;gap:.5rem">
 <label class="fck"><input type="checkbox" name="doc_ci" value="1" {{ old('doc_ci')?'checked':'' }}><span>Fotocopia de Cédula de Identidad (CI)</span></label>

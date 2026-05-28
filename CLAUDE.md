@@ -47,9 +47,9 @@ Note: `phpunit.xml` does NOT override `DB_CONNECTION`, so tests run against the 
 **Domain model.** Core entities: `Gestion` (academic term — exactly one is `estado='en_curso'` and most workflows operate on that active gestion), `Carrera`, `Materia`, `CupoCarrera` (max seats per carrera×gestion), `Postulante`, `Docente`, `Grupo`, `Asignacion` (docente+materia+schedule on a grupo), `Nota`, `Admision`. Pivot `grupo_postulante` links applicants to groups.
 
 **Key business rules (when touching these, preserve the invariants):**
-- Group generation (`GrupoController::generar`, CU-17): number of groups = `ceil(inscritos / 70)`, capacity 70 each, turnos/modalidades cycle through fixed arrays.
-- Teacher assignment (`GrupoController::asignarDocente`, CU-18/19/16): rejects schedule overlaps for the same docente/day, and caps a docente at 4 groups per gestion.
-- Admission processing (`AdmisionController::procesar`, CU-27/28): wipes prior `Admision` rows for the active gestion, ranks approved applicants by `promedio_general` desc, fills `primera_opcion` seats first then `segunda_opcion`, marks the rest `no_admitido`; updates each `Postulante.estado`. `publicar` (CU-29) flips `publicado=true`.
+- Group generation (`GrupoController::generar`, CU-11): number of groups = `ceil(inscritos / 70)`, capacity 70 each, turnos/modalidades cycle through fixed arrays.
+- Teacher assignment (`GrupoController::asignarDocente`, CU-12): rejects schedule overlaps for the same docente/day, and caps a docente at 4 groups per gestion.
+- Admission processing (`AdmisionController::procesar`, CU-16/17): wipes prior `Admision` rows for the active gestion, ranks approved applicants by `promedio_general` desc, fills `primera_opcion` seats first then `segunda_opcion`, marks the rest `no_admitido`; updates each `Postulante.estado`. `publicar` (CU-18) flips `publicado=true`.
 
 **Postulante.estado lifecycle:** `inscrito → en_curso → aprobado → admitido | admitido_segunda_opcion | no_admitido` (also `reprobado`). State transitions are driven by the controllers above, not by the model.
 

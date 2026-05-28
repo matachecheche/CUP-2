@@ -2,7 +2,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
-/** CU-27 a CU-29 */
+/** CU-16 a CU-18 */
 class Admision extends Model {
     protected $table    = 'admisiones';
     protected $fillable = ['postulante_id','gestion_id','promedio_general','carrera_asignada_id','resultado','publicado'];

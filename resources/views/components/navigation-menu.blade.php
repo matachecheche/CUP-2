@@ -48,28 +48,28 @@
                 {{-- Gestiones (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-calendar-alt"></i></div>
-                    <span>CU-13 · Gestiones / Períodos</span>
+                    <span>CU-06 · Gestiones / Períodos</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
                 {{-- Carreras (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-graduation-cap"></i></div>
-                    <span>CU-10 · Carreras</span>
+                    <span>CU-07 · Carreras</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
                 {{-- Cupos (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-sliders-h"></i></div>
-                    <span>CU-11 · Cupos por carrera</span>
+                    <span>CU-08 · Cupos por carrera</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
                 {{-- Materias (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-book"></i></div>
-                    <span>CU-12 · Materias del CUP</span>
+                    <span>CU-09 · Materias del CUP</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
@@ -82,14 +82,14 @@
                 {{-- Postulantes (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-user-plus"></i></div>
-                    <span>CU-05/09 · Postulantes</span>
+                    <span>CU-05 · Postulantes</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
                 {{-- Docentes (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-chalkboard-teacher"></i></div>
-                    <span>CU-14/16 · Docentes</span>
+                    <span>CU-10 · Docentes</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
@@ -102,14 +102,14 @@
                 {{-- Grupos (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-layer-group"></i></div>
-                    <span>CU-17/21 · Grupos y Horarios</span>
+                    <span>CU-11/12 · Grupos y Horarios</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
                 {{-- Notas (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-pen"></i></div>
-                    <span>CU-22/26 · Notas y Evaluación</span>
+                    <span>CU-13/15 · Notas y Evaluación</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
@@ -122,14 +122,14 @@
                 {{-- Admisión (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-trophy"></i></div>
-                    <span>CU-27/29 · Proceso de admisión</span>
+                    <span>CU-16/18 · Proceso de admisión</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 
                 {{-- Reportes (pendiente) --}}
                 <span class="nav-link d-flex align-items-center gap-2" style="color:#334155; cursor:default;">
                     <div class="sb-nav-link-icon"><i class="fas fa-chart-bar"></i></div>
-                    <span>CU-30/33 · Reportes y Estadísticas</span>
+                    <span>CU-19 · Reportes y Estadísticas</span>
                     <small class="ms-auto" style="font-size:0.62rem; color:#334155;">Pendiente</small>
                 </span>
 

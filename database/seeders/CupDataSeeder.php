@@ -43,7 +43,7 @@ class CupDataSeeder extends Seeder
         $carreras = DB::table('carreras')->get();
         $materias = DB::table('materias')->get();
 
-        // ── 4. CUPOS POR CARRERA Y GESTIÓN (CU-11) ──────────────────────────
+        // ── 4. CUPOS POR CARRERA Y GESTIÓN (CU-08) ──────────────────────────
         $cuposPorSigla = ['INF'=>80,'SIS'=>75,'RYT'=>60,'ROB'=>50];
         $gestiones = DB::table('gestiones')->get();
         foreach ($gestiones as $g) {
@@ -56,7 +56,7 @@ class CupDataSeeder extends Seeder
             }
         }
 
-        // ── 5. DOCENTES (CU-14 / CU-15) ─────────────────────────────────────
+        // ── 5. DOCENTES (CU-10) ─────────────────────────────────────────────
         $docentesData = [
             ['ci'=>'4512378','nombres'=>'Roberto','apellidos'=>'Mamani Flores',   'telefono'=>'71234501','email'=>'rmamani@ficct.edu.bo',  'titulo_profesional'=>'Ing. en Informática',              'maestria'=>'Maestría en Ingeniería de Software',            'diplomado_educacion_superior'=>'Diplomado en Docencia Universitaria','certificacion_ingles'=>'B2','area_formacion'=>'Computación'],
             ['ci'=>'5623489','nombres'=>'Carla',   'apellidos'=>'Quispe Vargas',   'telefono'=>'72345602','email'=>'cquispe@ficct.edu.bo',   'titulo_profesional'=>'Lic. en Matemáticas',              'maestria'=>'Maestría en Docencia Universitaria',            'diplomado_educacion_superior'=>'Diplomado en Educación Superior',    'certificacion_ingles'=>null,'area_formacion'=>'Matemáticas'],
@@ -98,7 +98,7 @@ class CupDataSeeder extends Seeder
             }
         }
 
-        // ── 7. POSTULANTES (150 ficticios) (CU-05 / CU-08) ──────────────────
+        // ── 7. POSTULANTES (150 ficticios) (CU-05) ──────────────────────────
         $nombres   = ['Juan','María','Carlos','Ana','Luis','Rosa','Jorge','Elena','Miguel','Paola','Ricardo','Sandra','Fernando','Claudia','Daniel','Patricia','Eduardo','Verónica','Andrés','Natalia','Sergio','Valeria','Marcos','Alejandra','Pablo','Camila','Oscar','Fernanda','Iván','Diana'];
         $apellidos = ['Mamani','Quispe','Condori','Flores','García','Torrez','Chávez','Apaza','Ticona','Aliaga','Villanueva','Beltrán','Herrera','Pinto','Rojas','Vega','Soria','Marca','Gutiérrez','Espinoza','Mendoza','Salazar','Barrios','Cáceres','Pérez','López','Miranda','Vargas','Huanca','Cruz'];
         $colegios  = ['Colegio Nacional Bolivia','U.E. San Calixto','U.E. Don Bosco','U.E. La Salle','U.E. Franz Tamayo','Colegio Los Andes','U.E. Ayacucho','U.E. Simón Bolívar','Colegio Hernando Siles','U.E. Sagrado Corazón'];
@@ -159,7 +159,7 @@ class CupDataSeeder extends Seeder
             $postInsertados++;
         }
 
-        // ── 8. GRUPOS (CU-17) — CEIL(150/60) = 3 grupos ─────────────────────
+        // ── 8. GRUPOS (CU-11) — CEIL(150/60) = 3 grupos ─────────────────────
         if (DB::table('grupos')->where('gestion_id',$gestion->id)->count() === 0) {
             DB::table('grupos')->insert([
                 ['gestion_id'=>$gestion->id,'codigo'=>'GRP-A','turno'=>'mañana', 'modalidad'=>'presencial','capacidad_maxima'=>60,'estado'=>true,'created_at'=>now(),'updated_at'=>now()],
@@ -169,7 +169,7 @@ class CupDataSeeder extends Seeder
         }
         $grupos = DB::table('grupos')->where('gestion_id',$gestion->id)->get();
 
-        // ── 9. INSCRIBIR POSTULANTES A GRUPOS (CU-21) ────────────────────────
+        // ── 9. INSCRIBIR POSTULANTES A GRUPOS (CU-11) ────────────────────────
         $postIds = DB::table('postulantes')->where('gestion_id',$gestion->id)->pluck('id')->toArray();
         foreach ($postIds as $idx => $pid) {
             $grupoObj = $grupos[$idx % count($grupos)]; // distribución rotativa
@@ -180,7 +180,7 @@ class CupDataSeeder extends Seeder
             DB::table('postulantes')->where('id',$pid)->update(['estado'=>'en_curso','updated_at'=>now()]);
         }
 
-        // ── 10. ASIGNACIONES DOCENTE–GRUPO–MATERIA (CU-18) ──────────────────
+        // ── 10. ASIGNACIONES DOCENTE–GRUPO–MATERIA (CU-12) ──────────────────
         //  Comp→Roberto,Julio,Carlos | Mat→Carla,Sandra,Maria | Fis→Pedro,Hugo | Ing→Lucia,Ana
         $docIds = DB::table('docentes')->pluck('id','email')->toArray();
         $matIds = DB::table('materias')->pluck('id','nombre')->toArray();
@@ -210,7 +210,7 @@ class CupDataSeeder extends Seeder
             );
         }
 
-        // ── 11. NOTAS (CU-22 a CU-25) — 3 exámenes × 4 materias × 150 postulantes
+        // ── 11. NOTAS (CU-13 / CU-14) — 3 exámenes × 4 materias × 150 postulantes
         $matList = DB::table('materias')->get();
         $gpMap   = DB::table('grupo_postulante')->get()->groupBy('postulante_id');
 
@@ -250,7 +250,7 @@ class CupDataSeeder extends Seeder
             ]);
         }
 
-        // ── 12. ADMISIONES (CU-27 / CU-28 / CU-29) ──────────────────────────
+        // ── 12. ADMISIONES (CU-16 / CU-17 / CU-18) ──────────────────────────
         $cuposDB = DB::table('cupos_carrera')->where('gestion_id',$gestion->id)->pluck('cantidad_maxima','carrera_id')->toArray();
         $contadores = array_fill_keys(array_keys($cuposDB), 0);
 

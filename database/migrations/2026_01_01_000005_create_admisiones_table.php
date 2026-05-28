@@ -3,7 +3,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-// CU-27 a CU-29: Resultado final de admisión
+// CU-16 a CU-18: Resultado final de admisión
 return new class extends Migration {
     public function up(): void {
         Schema::create('admisiones', function (Blueprint $table) {

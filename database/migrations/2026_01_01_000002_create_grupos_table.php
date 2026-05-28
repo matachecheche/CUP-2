@@ -3,7 +3,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-// CU-17: Grupos (máx. 60 alumnos) + tabla pivote grupo_postulante (CU-21)
+// CU-11: Grupos (máx. 60 alumnos) + tabla pivote grupo_postulante
 return new class extends Migration {
     public function up(): void {
         Schema::create('grupos', function (Blueprint $table) {

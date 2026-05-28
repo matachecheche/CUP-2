@@ -3,7 +3,7 @@
 @section('content')
 <div class="ph">
   <h1>Proceso de Admisión</h1>
-  <p class="sub">CU-27 Procesar · CU-28 Reasignar · CU-29 Publicar resultados</p>
+  <p class="sub">CU-16 Procesar · CU-17 Reasignar · CU-18 Publicar resultados</p>
   <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Admisión</li></ol>
 </div>
 
@@ -21,10 +21,10 @@
 
 <div style="display:flex;gap:.75rem;margin-bottom:1.25rem">
   <form action="{{ route('admision.procesar') }}" method="POST">@csrf
-    <button type="submit" class="btn bp" onclick="return confirm('¿Procesar admisión? Esto sobreescribirá resultados previos.')"><i class="fas fa-cogs"></i> Procesar admisión (CU-27/28)</button>
+    <button type="submit" class="btn bp" onclick="return confirm('¿Procesar admisión? Esto sobreescribirá resultados previos.')"><i class="fas fa-cogs"></i> Procesar admisión (CU-16/17)</button>
   </form>
   <form action="{{ route('admision.publicar') }}" method="POST">@csrf
-    <button type="submit" class="btn" style="background:#10b981;color:#fff"><i class="fas fa-bullhorn"></i> Publicar resultados (CU-29)</button>
+    <button type="submit" class="btn" style="background:#10b981;color:#fff"><i class="fas fa-bullhorn"></i> Publicar resultados (CU-18)</button>
   </form>
 </div>
 

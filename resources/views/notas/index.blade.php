@@ -3,7 +3,7 @@
 @section('content')
 <div class="ph">
   <h1>Registro de Notas</h1>
-  <p class="sub">CU-22 Registrar · CU-23 Nota final · CU-24 Promedio · CU-25 Estado · CU-26 Consultar</p>
+  <p class="sub">CU-13 Registrar notas · CU-14 Nota final · Promedio · Estado · CU-15 Consultar</p>
   <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Notas</li></ol>
 </div>
 

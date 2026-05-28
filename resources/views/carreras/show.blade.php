@@ -1,7 +1,7 @@
 @extends('layouts.ap')
 @section('title',$carrera->nombre)
 @section('content')
-<div class="ph"><h1>{{ $carrera->nombre }}</h1><p class="sub">CU-11 — Cupos por gestión académica</p>
+<div class="ph"><h1>{{ $carrera->nombre }}</h1><p class="sub">CU-08 — Cupos por gestión académica</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li><a href="{{ route('carreras.index') }}">Carreras</a></li><li>{{ $carrera->sigla }}</li></ol></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:780px;margin-bottom:1.5rem">
 <div class="card"><div class="card-hd"><i class="fas fa-info-circle"></i>Información</div><div class="card-bd" style="font-size:.88rem">
@@ -9,7 +9,7 @@
 <div style="margin-bottom:.6rem"><span style="color:var(--t3)">Sigla</span><div><span class="bg baz">{{ $carrera->sigla??'—' }}</span></div></div>
 <div><span style="color:var(--t3)">Estado</span><div><span class="bg {{ $carrera->estado?'bv':'bg2' }}">{{ $carrera->estado?'Activa':'Inactiva' }}</span></div></div>
 </div></div>
-<div class="card"><div class="card-hd"><i class="fas fa-sliders-h"></i>Definir cupo (CU-11)</div><div class="card-bd">
+<div class="card"><div class="card-hd"><i class="fas fa-sliders-h"></i>Definir cupo (CU-08)</div><div class="card-bd">
 <form action="{{ route('carreras.cupos',$carrera) }}" method="POST">@csrf
 <div style="margin-bottom:.75rem"><label class="fl">Gestión <span class="rq">*</span></label>
 <select name="gestion_id" class="fs" required><option value="">— Seleccionar —</option>

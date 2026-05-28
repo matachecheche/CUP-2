@@ -1,7 +1,7 @@
 @extends('layouts.ap')
 @section('title',$postulante->nombre_completo)
 @section('content')
-<div class="ph"><h1>{{ $postulante->nombre_completo }}</h1><p class="sub">CU-09 — Estado del postulante</p>
+<div class="ph"><h1>{{ $postulante->nombre_completo }}</h1><p class="sub">CU-05 — Estado del postulante</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li><a href="{{ route('postulantes.index') }}">Postulantes</a></li><li>Detalle</li></ol></div>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;max-width:840px">
 <div class="card"><div class="card-hd"><i class="fas fa-user"></i>Datos personales</div><div class="card-bd" style="font-size:.87rem">
@@ -17,12 +17,12 @@
 <div><span style="font-size:.72rem;text-transform:uppercase;color:var(--t3)">2ª OPCIÓN</span>
 <div style="font-weight:600">{{ $postulante->segundaOpcion?->nombre??'—' }}</div></div>
 </div></div>
-<div class="card" style="margin-bottom:1rem"><div class="card-hd"><i class="fas fa-file-check"></i>Documentos (CU-06)</div><div class="card-bd" style="font-size:.88rem;display:flex;flex-direction:column;gap:.4rem">
+<div class="card" style="margin-bottom:1rem"><div class="card-hd"><i class="fas fa-file-check"></i>Documentos (CU-05)</div><div class="card-bd" style="font-size:.88rem;display:flex;flex-direction:column;gap:.4rem">
 @foreach(['doc_ci'=>'CI','doc_libreta_colegio'=>'Libreta de colegio','doc_titulo_bachiller'=>'Título de Bachiller'] as $col=>$lbl)
 <div><i class="fas fa-{{ $postulante->$col ? 'check-circle':'times-circle' }}" style="color:{{ $postulante->$col ? 'var(--v3)':'var(--d)' }}"></i> {{ $lbl }}</div>
 @endforeach
 </div></div>
-<div class="card"><div class="card-hd"><i class="fas fa-info-circle"></i>Estado (CU-09)</div><div class="card-bd" style="text-align:center;padding:1.5rem">
+<div class="card"><div class="card-hd"><i class="fas fa-info-circle"></i>Estado (CU-05)</div><div class="card-bd" style="text-align:center;padding:1.5rem">
 <span class="bg {{ $postulante->estado_badge }}" style="font-size:.9rem;padding:.4rem 1rem">
 {{ ucfirst(str_replace('_',' ',$postulante->estado)) }}</span>
 @if($postulante->promedio_general)
@@ -31,10 +31,10 @@
 </div></div>
 </div></div>
 
-{{-- CU-07: Validar requisitos --}}
+{{-- CU-05: Validar requisitos --}}
 @can("editar postulantes")
 <div class="card" style="max-width:840px;margin-top:1rem">
-  <div class="card-hd"><i class="fas fa-clipboard-check"></i>Validar requisitos — CU-07</div>
+  <div class="card-hd"><i class="fas fa-clipboard-check"></i>Validar requisitos — CU-05</div>
   <div class="card-bd">
     @if(!$postulante->tieneDocumentos())
     <div class="al al-w" style="margin-bottom:.75rem">

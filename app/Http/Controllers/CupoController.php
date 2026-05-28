@@ -7,7 +7,7 @@ use App\Traits\BitacoraTrait;
 use Illuminate\Http\Request;
 
 /**
- * CU-11: Definir y consultar cupos por carrera y gestión.
+ * CU-08: Definir y consultar cupos por carrera y gestión.
  * Página dedicada /cupos — tabla cruzada carrera × gestión.
  */
 class CupoController extends Controller

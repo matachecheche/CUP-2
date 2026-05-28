@@ -2,7 +2,7 @@
 namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 
-/** CU-22 a CU-26 */
+/** CU-13 a CU-15 */
 class Nota extends Model {
     protected $table    = 'notas';
     protected $fillable = ['postulante_id','materia_id','grupo_id','examen1','examen2','examen3','nota_final','aprobado'];
@@ -12,7 +12,7 @@ class Nota extends Model {
     public function materia()    { return $this->belongsTo(Materia::class); }
     public function grupo()      { return $this->belongsTo(Grupo::class); }
 
-    /** CU-23: Calcula y persiste nota_final según ponderaciones de la materia */
+    /** CU-14: Calcula y persiste nota_final según ponderaciones de la materia */
     public function calcularYGuardar(): void {
         $m  = $this->materia;
         $p1 = $m ? $m->pond_examen1 : 30;

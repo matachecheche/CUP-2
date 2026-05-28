@@ -24,25 +24,25 @@ Route::middleware('auth')->group(function () {
     Route::resource('roles',    RoleController::class);
     Route::resource('bitacora', BitacoraController::class)->only(['index']);
 
-    // Módulo 2: Registro de Postulantes (CU-05 a CU-09)
+    // Módulo 2: Registro de Postulantes (CU-05)
     Route::resource('postulantes', PostulanteController::class);
 
-    // Módulo 3: Gestión Académica (CU-10 a CU-13)
+    // Módulo 3: Gestión Académica (CU-06 a CU-09)
     Route::resource('gestiones', GestionController::class);
     Route::resource('carreras',  CarreraController::class);
     Route::post('carreras/{carrera}/cupos',[CarreraController::class,'storeCupo'])->name('carreras.cupos');
-    // CU-11: Vista dedicada de cupos (tabla carrera × gestión)
+    // CU-08: Vista dedicada de cupos (tabla carrera × gestión)
     Route::get('cupos',  [CupoController::class,'index'])->name('cupos.index');
     Route::post('cupos', [CupoController::class,'store'])->name('cupos.store');
     Route::resource('materias',  MateriaController::class);
 
-    // Módulo 4: Asignación de Grupos y Docentes (CU-14 a CU-16)
+    // Módulo 4: Asignación de Grupos y Docentes (CU-10 a CU-12)
     Route::resource('docentes', DocenteController::class);
 
-    // Módulo 5: Exámenes y Control Académico (CU-22 a CU-26)
+    // Módulo 5: Exámenes y Control Académico (CU-13 a CU-15)
     Route::resource('notas', NotaController::class)->except(['destroy']);
 
-    // Módulo 6: Panel Administrativo y Reportes (CU-17 a CU-21, CU-27 a CU-29)
+    // Módulo 6: Panel Administrativo y Reportes (CU-11/12 grupos, CU-16 a CU-18 admisión)
     Route::resource('grupos', GrupoController::class);
     Route::post('grupos/generar-automatico',          [GrupoController::class,'generar'])->name('grupos.generar');
     Route::post('grupos/{grupo}/asignar-docente',    [GrupoController::class,'asignarDocente'])->name('grupos.asignarDocente');

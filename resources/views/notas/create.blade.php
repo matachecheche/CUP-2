@@ -2,7 +2,7 @@
 @section('title','Registrar Nota')
 @section('content')
 <div class="ph"><h1>Registrar Nota</h1>
-<p class="sub">CU-22 — {{ $postulante->nombre_completo }} · {{ $materia->nombre }}</p>
+<p class="sub">CU-13 — {{ $postulante->nombre_completo }} · {{ $materia->nombre }}</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li><a href="{{ route('notas.index',['grupo_id'=>$grupo->id,'materia_id'=>$materia->id]) }}">Notas</a></li><li>Registrar</li></ol>
 </div>
 

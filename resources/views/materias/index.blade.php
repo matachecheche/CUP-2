@@ -1,7 +1,7 @@
 @extends('layouts.ap')
 @section('title','Materias del CUP')
 @section('content')
-<div class="ph"><h1>Materias del CUP</h1><p class="sub">CU-12 — Computación · Matemáticas · Física · Inglés — Ponderación 30%+30%+40%</p>
+<div class="ph"><h1>Materias del CUP</h1><p class="sub">CU-09 — Computación · Matemáticas · Física · Inglés — Ponderación 30%+30%+40%</p>
 <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Materias</li></ol></div>
 @can('crear materias')<div style="margin-bottom:1rem"><a href="{{ route('materias.create') }}" class="btn bp"><i class="fas fa-plus"></i> Nueva Materia</a></div>@endcan
 <div class="card"><div class="card-hd"><i class="fas fa-book-open"></i>Materias del Curso Preuniversitario</div><div class="card-bd">

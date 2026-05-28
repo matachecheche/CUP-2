@@ -7,11 +7,11 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
- * CU-17: Generar grupos automáticamente   (CEIL inscritos/70)
- * CU-18: Asignar docente a grupo y materia
- * CU-19: Validar cruces de horario         (integrado en asignarDocente)
- * CU-20: Asignar horarios y modalidad      (integrado en update)
- * CU-21: Inscribir postulantes a grupos
+ * CU-11: Generar grupos automáticamente   (CEIL inscritos/70)
+ * CU-12: Asignar docente a grupo y materia
+ * CU-12: Validar cruces de horario         (integrado en asignarDocente)
+ * CU-12: Asignar horarios y modalidad      (integrado en update)
+ * CU-11: Inscribir postulantes a grupos
  */
 class GrupoController extends Controller
 {
@@ -26,7 +26,7 @@ class GrupoController extends Controller
         $this->middleware('permission:eliminar grupos')->only('destroy');
     }
 
-    // ─── CU-17 ───────────────────────────────────────────────────────────────
+    // ─── CU-11 ───────────────────────────────────────────────────────────────
     public function index()
     {
         $gestion  = Gestion::where('estado','en_curso')->first();
@@ -43,7 +43,7 @@ class GrupoController extends Controller
         return view('grupos.index', compact('gestion','grupos','totalInscritos','gruposNecesarios'));
     }
 
-    /** CU-17: Genera automáticamente los grupos faltantes (CEIL(inscritos/70)) */
+    /** CU-11: Genera automáticamente los grupos faltantes (CEIL(inscritos/70)) */
     public function generar()
     {
         $gestion = Gestion::where('estado','en_curso')->firstOrFail();
@@ -80,7 +80,7 @@ class GrupoController extends Controller
         );
     }
 
-    // ─── CU-20: detalle del grupo ─────────────────────────────────────────────
+    // ─── CU-11: detalle del grupo ─────────────────────────────────────────────
     public function show(Grupo $grupo)
     {
         $grupo->load(['gestion','asignaciones.docente','asignaciones.materia','postulantes']);
@@ -114,7 +114,7 @@ class GrupoController extends Controller
         return redirect()->route('grupos.show',$grupo)->with('success','Grupo actualizado.');
     }
 
-    /** CU-18 + CU-19: Asignar docente validando cruces de horario y afinidad de área */
+    /** CU-12: Asignar docente validando cruces de horario y afinidad de área */
     public function asignarDocente(Request $r, Grupo $grupo)
     {
         $d = $r->validate([
@@ -139,7 +139,7 @@ class GrupoController extends Controller
             ])->withInput();
         }
 
-        // CU-19 — validar cruce de horario del docente
+        // CU-12 — validar cruce de horario del docente
         $cruce = Asignacion::where('docente_id', $d['docente_id'])
             ->where('dia', $d['dia'])
             ->where(function($q) use ($d) {
@@ -160,7 +160,7 @@ class GrupoController extends Controller
             ])->withInput();
         }
 
-        // CU-16 — máx. 4 grupos por docente
+        // CU-12 — máx. 4 grupos por docente
         $gruposDocente = Asignacion::where('docente_id', $d['docente_id'])
             ->whereHas('grupo', fn($q)=>$q->where('gestion_id',$grupo->gestion_id))
             ->distinct('grupo_id')->count('grupo_id');
@@ -190,7 +190,7 @@ class GrupoController extends Controller
             ->with('success',"✔ {$doc->nombre_completo} asignado a {$mat->nombre} en {$grupo->codigo}.");
     }
 
-    /** CU-21: Inscribir postulantes al grupo respetando capacidad máxima */
+    /** CU-11: Inscribir postulantes al grupo respetando capacidad máxima */
     public function inscribirPostulantes(Request $r, Grupo $grupo)
     {
         $r->validate(['postulante_ids' => 'required|array|min:1',
