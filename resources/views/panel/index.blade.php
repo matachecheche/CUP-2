@@ -57,23 +57,15 @@
     </div>
   </div>
 
-  {{-- M2: Registro de Postulantes --}}
+  {{-- M2: Registro de Postulantes y Gestión Académica (fusión visual de los antiguos M2 + M3) --}}
   <div class="mc m2">
-    <div class="mh"><div class="mn2">2</div>Módulo de Registro de Postulantes</div>
+    <div class="mh"><div class="mn2">2</div>Módulo de Registro de Postulantes y Gestión Académica</div>
     <div class="mb2">
       @can('ver postulantes')
       <div class="cr2x lnk"><a href="{{ route('postulantes.index') }}"><span class="ctg dn">CU-05</span><i class="ci2 fas fa-user-plus"></i>Gestionar postulantes</a></div>
       @else
       <div class="cr2x dis"><span class="ctg pn">CU-05</span><i class="ci2 fas fa-lock"></i>Gestionar postulantes<span class="cpl">Sin acceso</span></div>
       @endcan
-      <div class="cr2x dis"><span class="ctg pn">CU-20</span><i class="ci2 fas fa-credit-card"></i>Gestionar pasarela de pago<span class="cpl">Próximamente</span></div>
-    </div>
-  </div>
-
-  {{-- M3: Gestión Académica --}}
-  <div class="mc m3">
-    <div class="mh"><div class="mn2">3</div>Módulo de Gestión Académica</div>
-    <div class="mb2">
       @can('ver gestiones')
       <div class="cr2x lnk"><a href="{{ route('gestiones.index') }}"><span class="ctg dn">CU-06</span><i class="ci2 fas fa-calendar-alt"></i>Gestionar gestiones académicas</a></div>
       @endcan
@@ -84,12 +76,13 @@
       @can('ver materias')
       <div class="cr2x lnk"><a href="{{ route('materias.index') }}"><span class="ctg dn">CU-09</span><i class="ci2 fas fa-book-open"></i>Gestionar materias del CUP</a></div>
       @endcan
+      <div class="cr2x dis"><span class="ctg pn">CU-20</span><i class="ci2 fas fa-credit-card"></i>Gestionar pasarela de pago<span class="cpl">Próximamente</span></div>
     </div>
   </div>
 
-  {{-- M4: Asignación de Grupos y Docentes --}}
+  {{-- M3: Asignación de Grupos y Docentes --}}
   <div class="mc m4">
-    <div class="mh"><div class="mn2">4</div>Módulo de Asignación de Grupos y Docentes</div>
+    <div class="mh"><div class="mn2">3</div>Módulo de Asignación de Grupos y Docentes</div>
     <div class="mb2">
       @can('ver docentes')
       <div class="cr2x lnk"><a href="{{ route('docentes.index') }}"><span class="ctg dn">CU-10</span><i class="ci2 fas fa-chalkboard-teacher"></i>Gestionar docentes</a></div>
@@ -101,9 +94,9 @@
     </div>
   </div>
 
-  {{-- M5: Exámenes y Control Académico --}}
+  {{-- M4: Exámenes y Control Académico --}}
   <div class="mc m5">
-    <div class="mh"><div class="mn2">5</div>Módulo de Exámenes y Control Académico</div>
+    <div class="mh"><div class="mn2">4</div>Módulo de Exámenes y Control Académico</div>
     <div class="mb2">
       @can('ver notas')
       <div class="cr2x lnk"><a href="{{ route('notas.index') }}"><span class="ctg dn">CU-13</span><i class="ci2 fas fa-pencil-alt"></i>Registrar notas de exámenes</a></div>
@@ -113,9 +106,9 @@
     </div>
   </div>
 
-  {{-- M6: Panel Administrativo y Reportes --}}
+  {{-- M5: Panel Administrativo y Reportes --}}
   <div class="mc m1" style="border-top-color:#10b981">
-    <div class="mh"><div class="mn2" style="background:#d1fae5;color:#065f46">6</div>Módulo de Panel Administrativo y Reportes</div>
+    <div class="mh"><div class="mn2" style="background:#d1fae5;color:#065f46">5</div>Módulo de Panel Administrativo y Reportes</div>
     <div class="mb2">
       @can('procesar admision')
       <div class="cr2x lnk"><a href="{{ route('admision.index') }}"><span class="ctg dn">CU-16</span><i class="ci2 fas fa-cogs"></i>Procesar admisión por primera opción</a></div>
