@@ -46,46 +46,50 @@
     @can('ver usuarios')
     <a class="ni {{ request()->routeIs('users.*') ? 'act':'' }}" href="{{ route('users.index') }}">
       <i class="ico fas fa-users-cog"></i>Gestión de Usuarios</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-users-cog"></i>Gestión de Usuarios<span class="nbg">Sin acceso</span></span>
     @endcan
     @can('ver roles')
     <a class="ni {{ request()->routeIs('roles.*') ? 'act':'' }}" href="{{ route('roles.index') }}">
       <i class="ico fas fa-user-shield"></i>Roles y Permisos</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-user-shield"></i>Roles y Permisos<span class="nbg">Sin acceso</span></span>
     @endcan
     @can('ver bitacora')
     <a class="ni {{ request()->routeIs('bitacora.*') ? 'act':'' }}" href="{{ route('bitacora.index') }}">
       <i class="ico fas fa-journal-whills"></i>Bitácora</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-journal-whills"></i>Bitácora<span class="nbg">Sin acceso</span></span>
     @endcan
   </div>
   <div class="sbdiv"></div>
 
-  {{-- Módulo 2: Registro de Postulantes --}}
+  {{-- Módulo 2: Registro de Postulantes y Gestión Académica --}}
   <div class="sb-sec">
-    <div class="sb-ttl">👤 Registro de Postulantes</div>
+    <div class="sb-ttl">👤 Registro de Postulantes y Gestión Académica</div>
     @can('ver postulantes')
     <a class="ni {{ request()->routeIs('postulantes.*') ? 'act':'' }}" href="{{ route('postulantes.index') }}">
       <i class="ico fas fa-user-plus"></i>Postulantes</a>
     @else
     <span class="ni pnd"><i class="ico fas fa-user-plus"></i>Postulantes<span class="nbg">Sin acceso</span></span>
     @endcan
-  </div>
-  <div class="sbdiv"></div>
-
-  {{-- Módulo 3: Gestión Académica --}}
-  <div class="sb-sec">
-    <div class="sb-ttl">🎓 Gestión Académica</div>
     @can('ver gestiones')
     <a class="ni {{ request()->routeIs('gestiones.*') ? 'act':'' }}" href="{{ route('gestiones.index') }}">
       <i class="ico fas fa-calendar-alt"></i>Gestiones Académicas</a>
     @else
-    <span class="ni pnd"><i class="ico fas fa-calendar-alt"></i>Gestiones<span class="nbg">Sin acceso</span></span>
+    <span class="ni pnd"><i class="ico fas fa-calendar-alt"></i>Gestiones Académicas<span class="nbg">Sin acceso</span></span>
     @endcan
     @can('ver carreras')
     <a class="ni {{ request()->routeIs('carreras.*') ? 'act':'' }}" href="{{ route('carreras.index') }}">
       <i class="ico fas fa-graduation-cap"></i>Carreras y Cupos</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-graduation-cap"></i>Carreras y Cupos<span class="nbg">Sin acceso</span></span>
+    @endcan
+    @can('ver cupos')
     <a class="ni {{ request()->routeIs('cupos.*') ? 'act':'' }}" href="{{ route('cupos.index') }}">
       <i class="ico fas fa-sliders-h"></i>Cupos por Gestión</a>
     @else
-    <span class="ni pnd"><i class="ico fas fa-graduation-cap"></i>Carreras y Cupos<span class="nbg">Sin acceso</span></span>
+    <span class="ni pnd"><i class="ico fas fa-sliders-h"></i>Cupos por Gestión<span class="nbg">Sin acceso</span></span>
     @endcan
     @can('ver materias')
     <a class="ni {{ request()->routeIs('materias.*') ? 'act':'' }}" href="{{ route('materias.index') }}">
@@ -93,12 +97,13 @@
     @else
     <span class="ni pnd"><i class="ico fas fa-book-open"></i>Materias del CUP<span class="nbg">Sin acceso</span></span>
     @endcan
+    <span class="ni pnd"><i class="ico fas fa-credit-card"></i>Pasarela de Pago<span class="nbg">Próximamente</span></span>
   </div>
   <div class="sbdiv"></div>
 
-  {{-- Módulo 4: Asignación de Grupos y Docentes --}}
+  {{-- Módulo 3: Asignación de Grupos y Docentes --}}
   <div class="sb-sec">
-    <div class="sb-ttl">🏫 Grupos y Docentes</div>
+    <div class="sb-ttl">🏫 Asignación de Grupos y Docentes</div>
     @can('ver docentes')
     <a class="ni {{ request()->routeIs('docentes.*') ? 'act':'' }}" href="{{ route('docentes.index') }}">
       <i class="ico fas fa-chalkboard-teacher"></i>Docentes</a>
@@ -114,7 +119,7 @@
   </div>
   <div class="sbdiv"></div>
 
-  {{-- Módulo 5: Exámenes --}}
+  {{-- Módulo 4: Exámenes y Control Académico --}}
   <div class="sb-sec">
     <div class="sb-ttl">📝 Exámenes y Control Académico</div>
     @can('ver notas')
@@ -126,16 +131,16 @@
   </div>
   <div class="sbdiv"></div>
 
-  {{-- Módulo 6: Panel Administrativo --}}
+  {{-- Módulo 5: Panel Administrativo y Reportes --}}
   <div class="sb-sec">
-    <div class="sb-ttl">📊 Panel Administrativo</div>
-    @can('ver admision')
+    <div class="sb-ttl">📊 Panel Administrativo y Reportes</div>
+    @can('procesar admision')
     <a class="ni {{ request()->routeIs('admision.*') ? 'act':'' }}" href="{{ route('admision.index') }}">
       <i class="ico fas fa-trophy"></i>Proceso de Admisión</a>
     @else
     <span class="ni pnd"><i class="ico fas fa-trophy"></i>Proceso de Admisión<span class="nbg">Sin acceso</span></span>
     @endcan
-    <span class="ni pnd"><i class="ico fas fa-chart-bar"></i>Reportes y Estadísticas<span class="nbg">Ciclo 2</span></span>
+    <span class="ni pnd"><i class="ico fas fa-chart-bar"></i>Reportes y Estadísticas<span class="nbg">Próximamente</span></span>
   </div>
   <div class="sbdiv"></div>
 
