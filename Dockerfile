@@ -29,8 +29,10 @@ RUN a2enmod rewrite
 # 6. Copiar los archivos del proyecto al espacio de trabajo del contenedor
 COPY . /var/www/html
 
-# 7. Asignar los permisos correctos a los directorios de escritura de Laravel
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# 7. Asignar permisos recursivos totales y cambiar el propietario al usuario de Apache (www-data)
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage \
+    && chmod -R 775 /var/www/html/bootstrap/cache
 
 # 8. Instalar dependencias de PHP (Ignorando restricciones de plataforma) y compilar Node
 RUN composer install --no-dev --optimize-autoloader --ignore-platform-reqs
