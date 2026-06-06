@@ -87,7 +87,7 @@ class NotaController extends Controller
             ['postulante_id'=>$d['postulante_id'],'materia_id'=>$d['materia_id'],'grupo_id'=>$d['grupo_id']],
             ['examen1'=>$d['examen1'],'examen2'=>$d['examen2'],'examen3'=>$d['examen3']]
         );
-        $nota->calcularNotaFinal();   // CU-14
+        $nota->calcularYGuardar();   // CU-14
 
         $this->_actualizarEstadoPostulante($d['postulante_id']); // CU-14
         $this->registrarEnBitacora("Registró nota para postulante ID:{$d['postulante_id']}", $nota->id, 'Notas');
@@ -114,7 +114,7 @@ class NotaController extends Controller
             'examen3.max' => 'La nota del examen 3 debe estar entre 0 y 100.',
         ]);
         $nota->update($d);
-        $nota->calcularNotaFinal();
+        $nota->calcularYGuardar();
         $this->_actualizarEstadoPostulante($nota->postulante_id);
         $this->registrarEnBitacora("Editó nota ID:{$nota->id}", $nota->id, 'Notas');
         return redirect()->route('notas.index',['grupo_id'=>$nota->grupo_id,'materia_id'=>$nota->materia_id])
