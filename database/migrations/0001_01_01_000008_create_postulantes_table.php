@@ -22,7 +22,7 @@ return new class extends Migration {
             $table->boolean('doc_ci')->default(false);
             $table->boolean('doc_libreta_colegio')->default(false);
             $table->boolean('doc_titulo_bachiller')->default(false);
-            $table->enum('estado',['inscrito','en_curso','aprobado','no_aprobado','admitido','admitido_segunda_opcion','no_admitido'])->default('inscrito');
+            $table->enum('estado',['preinscrito','inscrito','en_curso','aprobado','no_aprobado','admitido','admitido_segunda_opcion','no_admitido'])->default('inscrito');
             $table->decimal('promedio_general',5,2)->nullable();
             $table->timestamps();
         });

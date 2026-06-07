@@ -279,6 +279,7 @@ CREATE TABLE IF NOT EXISTS public.postulantes
     CONSTRAINT postulantes_pkey PRIMARY KEY (id),
     CONSTRAINT postulantes_ci_unique UNIQUE (ci),
     CONSTRAINT postulantes_email_unique UNIQUE (email),
+    CONSTRAINT postulantes_estado_check CHECK (estado IN ('preinscrito','inscrito','en_curso','aprobado','no_aprobado','admitido','admitido_segunda_opcion','no_admitido')),
     CONSTRAINT postulantes_gestion_id_foreign FOREIGN KEY (gestion_id)
         REFERENCES public.gestiones (id),
     CONSTRAINT postulantes_primera_opcion_id_foreign FOREIGN KEY (primera_opcion_id)
