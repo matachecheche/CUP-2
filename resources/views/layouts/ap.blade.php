@@ -103,7 +103,17 @@
     @else
     <span class="ni pnd"><i class="ico fas fa-book-open"></i>CU-09 · Gestionar materias del CUP<span class="nbg">Sin acceso</span></span>
     @endcan
-    <span class="ni pnd"><i class="ico fas fa-credit-card"></i>CU-20 · Gestionar pasarela de pago<span class="nbg">Próximamente</span></span>
+    @if(auth()->user()->postulante && auth()->user()->postulante->estado === 'preinscrito')
+    <a class="ni {{ request()->routeIs('pagos.*') ? 'act':'' }}" href="{{ route('pagos.pagar', auth()->user()->postulante_id) }}">
+      <i class="ico fas fa-credit-card"></i>CU-20 · Pagar mi inscripción<span class="nbg">Pendiente</span></a>
+    @elseif(auth()->user()->postulante)
+    <span class="ni pnd"><i class="ico fas fa-check-circle"></i>CU-20 · Pago de inscripción<span class="nbg">Realizado</span></span>
+    @elseif(auth()->user()->can('ver postulantes'))
+    <a class="ni {{ request()->routeIs('pagos.*') ? 'act':'' }}" href="{{ route('postulantes.index') }}">
+      <i class="ico fas fa-credit-card"></i>CU-20 · Gestionar pasarela de pago</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-credit-card"></i>CU-20 · Gestionar pasarela de pago<span class="nbg">Sin acceso</span></span>
+    @endif
   </div>
   <div class="sbdiv"></div>
 
