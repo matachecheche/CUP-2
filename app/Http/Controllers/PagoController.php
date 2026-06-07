@@ -50,15 +50,16 @@ class PagoController extends Controller
         }
 
         $monto = (float) ($postulante->gestion->costo_inscripcion ?? 850.00);
+        // Moneda configurable vía STRIPE_CURRENCY (Stripe soporta BOB; si tu
+        // cuenta de prueba la rechazara, usar 'usd' y ajustar el monto).
+        $moneda = config('services.stripe.currency', 'bob');
 
         $session = $this->stripe()->checkout->sessions->create([
             'mode' => 'payment',
             'line_items' => [[
                 'quantity' => 1,
                 'price_data' => [
-                    // Stripe soporta BOB; si tu cuenta de prueba la
-                    // rechazara, cambiar a 'usd' y ajustar el monto.
-                    'currency' => 'bob',
+                    'currency' => $moneda,
                     'unit_amount' => (int) round($monto * 100), // en centavos
                     'product_data' => [
                         'name' => 'Inscripción CUP FICCT — '.$postulante->gestion->descripcion,
@@ -76,7 +77,7 @@ class PagoController extends Controller
         // Queda 'pendiente' hasta que Stripe confirme (webhook o retorno).
         Pago::updateOrCreate(
             ['postulante_id' => $postulante->id, 'gestion_id' => $postulante->gestion_id, 'estado' => 'pendiente'],
-            ['monto' => $monto, 'moneda' => 'BOB', 'metodo' => 'stripe', 'stripe_session_id' => $session->id]
+            ['monto' => $monto, 'moneda' => strtoupper($moneda), 'metodo' => 'stripe', 'stripe_session_id' => $session->id]
         );
 
         $this->registrarEnBitacora("Inició pago Stripe de {$postulante->nombre_completo} (Bs {$monto})", $postulante->id, 'Pagos');
