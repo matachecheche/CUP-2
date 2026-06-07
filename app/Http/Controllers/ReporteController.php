@@ -15,7 +15,7 @@ class ReporteController extends Controller
 {
     use BitacoraTrait;
 
-    public const TIPOS = ['general','aprobados','reprobados','promedios','grupos','materias','docentes','top-grupos'];
+    public const TIPOS = ['general','aprobados','reprobados','promedios','grupos','materias','docentes','top-grupos','personalizado'];
     private const APROBADO_EN = ['aprobado','admitido','admitido_segunda_opcion'];
 
     public function __construct()
@@ -45,6 +45,17 @@ class ReporteController extends Controller
     public function show(Request $r, string $tipo)
     {
         abort_unless(in_array($tipo, self::TIPOS), 404);
+
+        // Constructor del reporte personalizado: sin 'tabla' todavía no hay nada que generar
+        if ($tipo === 'personalizado' && ! $r->filled('tabla')) {
+            return view('reportes.personalizado', [
+                'catalogoCampos' => $this->camposPersonalizado(),
+                'tabla'          => $r->query('tabla_sel', 'postulantes'),
+                'gestiones'      => Gestion::orderByDesc('fecha_inicio')->get(),
+                'gestionId'      => (int) ($r->query('gestion_id') ?: Gestion::where('estado','en_curso')->value('id') ?? 0),
+            ]);
+        }
+
         $rep = $this->datos($tipo, $r);
         $this->registrarEnBitacora("Generó reporte: {$rep['titulo']}", null, 'Reportes');
         return view('reportes.show', $rep + [
@@ -198,7 +209,115 @@ class ReporteController extends Controller
                 return ['titulo'=>'Grupos con mayor cantidad de aprobados','subtitulo'=>$sub,
                         'columnas'=>['#','Grupo','Turno','Aprobados','Inscritos','% Aprobación'],
                         'filas'=>$filas,'grafico'=>$grafico];
+
+            case 'personalizado':
+                $cat   = $this->camposPersonalizado();
+                $tabla = $r->query('tabla');
+                abort_unless(isset($cat[$tabla]), 404);
+                $disp = $cat[$tabla]['campos'];
+                $sel  = array_values(array_intersect(array_keys($disp), (array) $r->query('campos', [])));
+                if (! $sel) $sel = array_slice(array_keys($disp), 0, 4); // por defecto, los primeros 4
+
+                $columnas = []; $selects = [];
+                foreach ($sel as $i => $k) {
+                    $columnas[] = $disp[$k][0];
+                    $selects[]  = DB::raw($disp[$k][1].' as c'.$i);
+                }
+                $filas = $this->queryPersonalizado($tabla, $gid)->select($selects)->get()
+                    ->map(fn ($x) => array_map(
+                        fn ($v) => is_bool($v) ? ($v ? 'Sí' : 'No') : ($v ?? '—'),
+                        array_values((array) $x)))->all();
+
+                return ['titulo'=>'Reporte personalizado: '.$cat[$tabla]['titulo'],'subtitulo'=>$sub,
+                        'columnas'=>$columnas,'filas'=>$filas,'grafico'=>null];
         }
         abort(404);
+    }
+
+    /**
+     * Whitelist del reporte personalizado: tablas y campos permitidos.
+     * Cada campo: clave => [Etiqueta visible, expresión SQL segura].
+     * Nada que no esté aquí puede llegar a la consulta.
+     */
+    private function camposPersonalizado(): array
+    {
+        return [
+            'postulantes' => ['titulo' => 'Postulantes', 'campos' => [
+                'ci'        => ['CI', 'p.ci'],
+                'apellidos' => ['Apellidos', 'p.apellidos'],
+                'nombres'   => ['Nombres', 'p.nombres'],
+                'nacimiento'=> ['Fecha de nacimiento', 'p.fecha_nacimiento'],
+                'sexo'      => ['Sexo', 'p.sexo'],
+                'telefono'  => ['Teléfono', 'p.telefono'],
+                'email'     => ['Correo', 'p.email'],
+                'colegio'   => ['Colegio', 'p.colegio_procedencia'],
+                'ciudad'    => ['Ciudad', 'p.ciudad'],
+                'op1'       => ['1ª Opción', 'c1.nombre'],
+                'op2'       => ['2ª Opción', 'c2.nombre'],
+                'estado'    => ['Estado', 'p.estado'],
+                'promedio'  => ['Promedio', 'p.promedio_general'],
+            ]],
+            'docentes' => ['titulo' => 'Docentes', 'campos' => [
+                'ci'        => ['CI', 'd.ci'],
+                'apellidos' => ['Apellidos', 'd.apellidos'],
+                'nombres'   => ['Nombres', 'd.nombres'],
+                'email'     => ['Correo', 'd.email'],
+                'telefono'  => ['Teléfono', 'd.telefono'],
+                'titulo'    => ['Título profesional', 'd.titulo_profesional'],
+                'maestria'  => ['Maestría', 'd.maestria'],
+                'diplomado' => ['Dipl. Educación Superior', 'd.diplomado_educacion_superior'],
+                'area'      => ['Área de formación', 'd.area_formacion'],
+            ]],
+            'grupos' => ['titulo' => 'Grupos', 'campos' => [
+                'codigo'    => ['Grupo', 'g.codigo'],
+                'turno'     => ['Turno', 'g.turno'],
+                'modalidad' => ['Modalidad', 'g.modalidad'],
+                'capacidad' => ['Capacidad', 'g.capacidad_maxima'],
+                'gestion'   => ['Gestión', 'ge.descripcion'],
+            ]],
+            'notas' => ['titulo' => 'Notas', 'campos' => [
+                'postulante'=> ['Postulante', "p.apellidos || ', ' || p.nombres"],
+                'ci'        => ['CI', 'p.ci'],
+                'materia'   => ['Materia', 'm.nombre'],
+                'grupo'     => ['Grupo', 'g.codigo'],
+                'examen1'   => ['Examen 1', 'n.examen1'],
+                'examen2'   => ['Examen 2', 'n.examen2'],
+                'examen3'   => ['Examen 3', 'n.examen3'],
+                'final'     => ['Nota final', 'n.nota_final'],
+                'aprobado'  => ['Aprobado', 'n.aprobado'],
+            ]],
+            'pagos' => ['titulo' => 'Pagos', 'campos' => [
+                'comprobante'=> ['Comprobante', 'pa.comprobante'],
+                'postulante' => ['Postulante', "p.apellidos || ', ' || p.nombres"],
+                'ci'         => ['CI', 'p.ci'],
+                'monto'      => ['Monto (Bs)', 'pa.monto'],
+                'metodo'     => ['Método', 'pa.metodo'],
+                'estado'     => ['Estado', 'pa.estado'],
+                'fecha'      => ['Fecha de pago', 'pa.fecha_pago'],
+            ]],
+        ];
+    }
+
+    /** Consulta base (joins y filtro de gestión) por tabla del reporte personalizado. */
+    private function queryPersonalizado(string $tabla, int $gid)
+    {
+        return match ($tabla) {
+            'postulantes' => DB::table('postulantes as p')
+                ->leftJoin('carreras as c1', 'c1.id', '=', 'p.primera_opcion_id')
+                ->leftJoin('carreras as c2', 'c2.id', '=', 'p.segunda_opcion_id')
+                ->where('p.gestion_id', $gid)->orderBy('p.apellidos'),
+            'docentes' => DB::table('docentes as d')->orderBy('d.apellidos'),
+            'grupos' => DB::table('grupos as g')
+                ->leftJoin('gestiones as ge', 'ge.id', '=', 'g.gestion_id')
+                ->where('g.gestion_id', $gid)->orderBy('g.codigo'),
+            'notas' => DB::table('notas as n')
+                ->join('postulantes as p', 'p.id', '=', 'n.postulante_id')
+                ->join('materias as m', 'm.id', '=', 'n.materia_id')
+                ->join('grupos as g', 'g.id', '=', 'n.grupo_id')
+                ->where('g.gestion_id', $gid)->orderBy('p.apellidos'),
+            'pagos' => DB::table('pagos as pa')
+                ->join('postulantes as p', 'p.id', '=', 'pa.postulante_id')
+                ->where('pa.gestion_id', $gid)->orderByDesc('pa.created_at'),
+        };
     }
 }

@@ -9,9 +9,15 @@
   <select name="gestion_id" onchange="this.form.submit()" style="padding:.45rem .6rem;border:1px solid #d8d2c4;border-radius:6px;background:#fff">
     @foreach($gestiones as $g)<option value="{{ $g->id }}" {{ $g->id==$gestionId?'selected':'' }}>{{ $g->descripcion }}</option>@endforeach
   </select>
-  <button type="button" id="btnVoz" class="btn bp" title="Consultar por voz (Chrome/Edge)"><i class="fas fa-microphone"></i> Por voz</button>
-  <span id="vozTxt" style="font-size:.8rem;color:var(--t3,#8a8678)"></span>
 </form>
+
+<div class="card" style="margin-bottom:1rem;border-left:4px solid #b08a2e"><div class="card-bd" style="display:flex;align-items:center;gap:1rem;flex-wrap:wrap">
+  <div style="flex:1;min-width:240px">
+    <div style="font-weight:700"><i class="fas fa-sliders-h" style="margin-right:.45rem"></i>Reporte personalizado (dinámico)</div>
+    <div style="font-size:.83rem;color:var(--t3,#8a8678)">Elige una tabla y marca los campos a incluir; el reporte se genera a medida en pantalla, PDF o Excel.</div>
+  </div>
+  <a class="btn bp" href="{{ route('reportes.show',['personalizado','gestion_id'=>$gestionId]) }}"><i class="fas fa-magic"></i> Construir reporte</a>
+</div></div>
 
 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem">
 @foreach($catalogo as $c)
@@ -26,23 +32,4 @@
   </div></div>
 @endforeach
 </div>
-
-@push('js')<script>
-const mapaVoz = {general:['general','lista','postulantes'],aprobados:['aprobado'],reprobados:['reprobado'],
-  promedios:['promedio'],grupos:['grupos habilitados','ocupación','grupos'],materias:['materia'],
-  docentes:['docente','carga'],['top-grupos']:['mejores','mayor','ranking','top']};
-const btn=document.getElementById('btnVoz'),txt=document.getElementById('vozTxt');
-const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-if(!SR){btn.style.display='none'}else{
-  const rec=new SR();rec.lang='es-ES';rec.interimResults=false;
-  btn.onclick=()=>{txt.textContent='Escuchando… diga p.ej. "postulantes aprobados"';rec.start()};
-  rec.onresult=e=>{const dicho=e.results[0][0].transcript.toLowerCase();txt.textContent='"'+dicho+'"';
-    const pdf=dicho.includes('pdf'),excel=dicho.includes('excel')||dicho.includes('csv');
-    for(const [tipo,claves] of Object.entries(mapaVoz)){
-      if(claves.some(k=>dicho.includes(k))){
-        const base='{{ url('reportes') }}/'+tipo, q='?gestion_id={{ $gestionId }}';
-        location.href = pdf?base+'/exportar/pdf'+q : excel?base+'/exportar/csv'+q : base+q; return;}}
-    txt.textContent='No entendí: "'+dicho+'". Pruebe "aprobados", "promedios", "docentes"…';};
-  rec.onerror=()=>txt.textContent='Micrófono no disponible o permiso denegado.';}
-</script>@endpush
 @endsection
