@@ -174,7 +174,12 @@
     @else
     <span class="ni pnd"><i class="ico fas fa-bullhorn"></i>CU-18 · Publicar resultado final de admisión<span class="nbg">Sin acceso</span></span>
     @endcan
-    <span class="ni pnd"><i class="ico fas fa-chart-bar"></i>CU-19 · Gestionar reportes y estadísticas<span class="nbg">Próximamente</span></span>
+    @can('ver reportes')
+    <a class="ni {{ request()->routeIs('reportes.*') ? 'act':'' }}" href="{{ route('reportes.index') }}">
+      <i class="ico fas fa-chart-bar"></i>CU-19 · Gestionar reportes y estadísticas</a>
+    @else
+    <span class="ni pnd"><i class="ico fas fa-chart-bar"></i>CU-19 · Gestionar reportes y estadísticas<span class="nbg">Sin acceso</span></span>
+    @endcan
   </div>
   <div class="sbdiv"></div>
 

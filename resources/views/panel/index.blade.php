@@ -151,7 +151,11 @@
       @else
       <div class="cr2x dis"><span class="ctg pn">CU-18</span><i class="ci2 fas fa-lock"></i>Publicar resultado final de admisión<span class="cpl">Sin acceso</span></div>
       @endcan
-      <div class="cr2x dis"><span class="ctg pn">CU-19</span><i class="ci2 fas fa-chart-bar"></i>Gestionar reportes y estadísticas<span class="cpl">Próximamente</span></div>
+      @can('ver reportes')
+      <div class="cr2x lnk"><a href="{{ route('reportes.index') }}"><span class="ctg dn">CU-19</span><i class="ci2 fas fa-chart-bar"></i>Gestionar reportes y estadísticas</a></div>
+      @else
+      <div class="cr2x dis"><span class="ctg pn">CU-19</span><i class="ci2 fas fa-lock"></i>Gestionar reportes y estadísticas<span class="cpl">Sin acceso</span></div>
+      @endcan
     </div>
   </div>
 </div>

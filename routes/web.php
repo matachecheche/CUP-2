@@ -16,6 +16,7 @@ use App\Http\Controllers\MateriaController;
 use App\Http\Controllers\NotaController;
 use App\Http\Controllers\PagoController;
 use App\Http\Controllers\PostulanteController;
+use App\Http\Controllers\ReporteController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Support\Facades\Auth;
@@ -76,6 +77,11 @@ Route::middleware('auth')->group(function () {
     Route::post('pagos/checkout/{postulante}', [PagoController::class, 'checkout'])->name('pagos.checkout');
     Route::get('pagos/exito', [PagoController::class, 'exito'])->name('pagos.exito');
     Route::get('pagos/cancelado/{postulante}', [PagoController::class, 'cancelado'])->name('pagos.cancelado');
+
+    // ── CU-19: Reportes y estadísticas ─────────────────────────────────────
+    Route::get('reportes',                              [ReporteController::class,'index'])->name('reportes.index');
+    Route::get('reportes/{tipo}',                       [ReporteController::class,'show'])->name('reportes.show');
+    Route::get('reportes/{tipo}/exportar/{formato}',    [ReporteController::class,'exportar'])->name('reportes.exportar');
 });
 
 // Bitácora: cierre de pestaña
