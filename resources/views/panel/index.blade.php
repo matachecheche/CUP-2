@@ -93,7 +93,7 @@
       @elseif(auth()->user()->postulante)
       <div class="cr2x dis"><span class="ctg pn">CU-20</span><i class="ci2 fas fa-check-circle"></i>Pago de inscripción<span class="cpl">Realizado</span></div>
       @elseif(auth()->user()->can('ver postulantes'))
-      <div class="cr2x lnk"><a href="{{ route('postulantes.index') }}"><span class="ctg dn">CU-20</span><i class="ci2 fas fa-credit-card"></i>Gestionar pasarela de pago</a></div>
+      <div class="cr2x lnk"><a href="{{ route('pagos.index') }}"><span class="ctg dn">CU-20</span><i class="ci2 fas fa-credit-card"></i>Gestionar pasarela de pago</a></div>
       @else
       <div class="cr2x dis"><span class="ctg pn">CU-20</span><i class="ci2 fas fa-lock"></i>Gestionar pasarela de pago<span class="cpl">Sin acceso</span></div>
       @endif

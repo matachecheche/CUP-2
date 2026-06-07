@@ -109,7 +109,7 @@
     @elseif(auth()->user()->postulante)
     <span class="ni pnd"><i class="ico fas fa-check-circle"></i>CU-20 · Pago de inscripción<span class="nbg">Realizado</span></span>
     @elseif(auth()->user()->can('ver postulantes'))
-    <a class="ni {{ request()->routeIs('pagos.*') ? 'act':'' }}" href="{{ route('postulantes.index') }}">
+    <a class="ni {{ request()->routeIs('pagos.*') ? 'act':'' }}" href="{{ route('pagos.index') }}">
       <i class="ico fas fa-credit-card"></i>CU-20 · Gestionar pasarela de pago</a>
     @else
     <span class="ni pnd"><i class="ico fas fa-credit-card"></i>CU-20 · Gestionar pasarela de pago<span class="nbg">Sin acceso</span></span>

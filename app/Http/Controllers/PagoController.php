@@ -27,6 +27,21 @@ class PagoController extends Controller
         return new StripeClient(config('services.stripe.secret'));
     }
 
+    /** CU-20: panel de gestión de la pasarela — listado y resumen de pagos. */
+    public function index()
+    {
+        abort_unless(auth()->user()?->can('ver postulantes'), 403);
+
+        $pagos = Pago::with(['postulante', 'gestion'])->orderByDesc('created_at')->get();
+        $stats = [
+            'recaudado'  => (float) Pago::where('estado', 'pagado')->sum('monto'),
+            'pagados'    => Pago::where('estado', 'pagado')->count(),
+            'pendientes' => Pago::where('estado', 'pendiente')->count(),
+        ];
+
+        return view('pagos.index', compact('pagos', 'stats'));
+    }
+
     /** Pantalla de resumen del pago con botón "Pagar con Stripe". */
     public function pagar(Postulante $postulante)
     {

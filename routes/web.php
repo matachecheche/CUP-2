@@ -71,6 +71,7 @@ Route::middleware('auth')->group(function () {
     Route::post('admision/publicar', [AdmisionController::class, 'publicar'])->name('admision.publicar');
 
     // Módulo 7: Pago de inscripción (CU-20) — Stripe Checkout
+    Route::get('pagos',                    [PagoController::class, 'index'])->name('pagos.index');
     Route::get('pagos/pagar/{postulante}', [PagoController::class, 'pagar'])->name('pagos.pagar');
     Route::post('pagos/checkout/{postulante}', [PagoController::class, 'checkout'])->name('pagos.checkout');
     Route::get('pagos/exito', [PagoController::class, 'exito'])->name('pagos.exito');
