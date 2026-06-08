@@ -133,7 +133,7 @@
       @endcan
       @can('ver grupos')
       <div class="cr2x lnk"><a href="{{ route('grupos.index') }}"><span class="ctg dn">CU-11</span><i class="ci2 fas fa-layer-group"></i>Gestionar grupos</a></div>
-      <div class="cr2x lnk"><a href="{{ route('grupos.index') }}"><span class="ctg dn">CU-12</span><i class="ci2 fas fa-user-tie"></i>Asignar docente a grupos y materias</a></div>
+      <div class="cr2x lnk"><a href="{{ route('asignaciones.index') }}"><span class="ctg dn">CU-12</span><i class="ci2 fas fa-user-tie"></i>Asignar docente a grupos y materias</a></div>
       @else
       <div class="cr2x dis"><span class="ctg pn">CU-11</span><i class="ci2 fas fa-lock"></i>Gestionar grupos<span class="cpl">Sin acceso</span></div>
       <div class="cr2x dis"><span class="ctg pn">CU-12</span><i class="ci2 fas fa-lock"></i>Asignar docente a grupos y materias<span class="cpl">Sin acceso</span></div>

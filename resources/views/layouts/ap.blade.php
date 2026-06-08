@@ -129,7 +129,7 @@
     @can('ver grupos')
     <a class="ni {{ request()->routeIs('grupos.*') ? 'act':'' }}" href="{{ route('grupos.index') }}">
       <i class="ico fas fa-layer-group"></i>CU-11 · Gestionar grupos</a>
-    <a class="ni {{ request()->routeIs('grupos.*') ? 'act':'' }}" href="{{ route('grupos.index') }}">
+    <a class="ni {{ request()->routeIs('asignaciones.*') ? 'act':'' }}" href="{{ route('asignaciones.index') }}">
       <i class="ico fas fa-user-tie"></i>CU-12 · Asignar docente a grupos y materias</a>
     @else
     <span class="ni pnd"><i class="ico fas fa-layer-group"></i>CU-11 · Gestionar grupos<span class="nbg">Sin acceso</span></span>

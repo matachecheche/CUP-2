@@ -12,4 +12,7 @@ class Grupo extends Model {
     public function asignaciones() { return $this->hasMany(Asignacion::class); }
     public function postulantes()  { return $this->belongsToMany(Postulante::class, 'grupo_postulante'); }
     public function notas()        { return $this->hasMany(Nota::class); }
+
+    /** CU-11: cupos libres = capacidad − inscritos. */
+    public function getCuposDisponiblesAttribute(): int { return max(0, $this->capacidad_maxima - $this->postulantes()->count()); }
 }

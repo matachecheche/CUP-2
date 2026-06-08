@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdmisionController;
+use App\Http\Controllers\AsignacionDocenteController;
 use App\Http\Controllers\Auth\ForgotPasswordController;
 use App\Http\Controllers\Auth\ResetPasswordController;
 use App\Http\Controllers\BitacoraController;
@@ -75,11 +76,15 @@ Route::middleware('auth')->group(function () {
     Route::get( 'notas/consultar', [NotaController::class,'consultar'])->name('notas.consultar');
     Route::resource('notas', NotaController::class)->except(['destroy','show']);
 
-    // Módulo 6: Panel Administrativo y Reportes (CU-11/12 grupos, CU-16 a CU-18 admisión)
-    Route::resource('grupos', GrupoController::class);
+    // Módulo 6: Panel Administrativo y Reportes (CU-11 grupos, CU-12 asignaciones, CU-16 a CU-18 admisión)
+    // CU-11 · Gestionar grupos (la entidad grupo). Rutas literales ANTES del resource.
     Route::post('grupos/generar-automatico', [GrupoController::class, 'generar'])->name('grupos.generar');
-    Route::post('grupos/{grupo}/asignar-docente', [GrupoController::class, 'asignarDocente'])->name('grupos.asignarDocente');
+    Route::get('grupos/{grupo}/estudiantes', [GrupoController::class, 'estudiantes'])->name('grupos.estudiantes');
     Route::post('grupos/{grupo}/inscribir', [GrupoController::class, 'inscribirPostulantes'])->name('grupos.inscribirPostulantes');
+    Route::resource('grupos', GrupoController::class);
+    // CU-12 · Asignar docente a grupos y materias (CRUD de asignaciones).
+    Route::resource('asignaciones', AsignacionDocenteController::class)
+        ->parameters(['asignaciones' => 'asignacion'])->except(['show']);
     // ── CU-16/17/18: proceso de admisión en 3 pasos ────────────────────────
     Route::get( 'admision',             [AdmisionController::class,'index'])->name('admision.index');
     Route::get( 'admision/primera',     [AdmisionController::class,'primera'])->name('admision.primera');

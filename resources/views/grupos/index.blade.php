@@ -3,7 +3,7 @@
 @section('content')
 <div class="ph">
   <h1>Grupos del CUP</h1>
-  <p class="sub">CU-11 Generar grupos e inscribir postulantes · CU-12 Asignar docentes con horarios</p>
+  <p class="sub">CU-11 · Generar grupos, editar e inscribir postulantes (la asignación de docentes es CU-12)</p>
   <ol class="bc"><li><a href="{{ route('panel') }}">Inicio</a></li><li>Grupos</li></ol>
 </div>
 
@@ -38,8 +38,8 @@
     No hay gestión activa. <a href="{{ route('gestiones.index') }}">Activar una gestión</a>.
   </div>
 @else
-  @can('crear grupos')
-  <div style="margin-bottom:1.25rem">
+  <div style="margin-bottom:1.25rem;display:flex;gap:.5rem;flex-wrap:wrap;align-items:center">
+    @can('crear grupos')
     <form action="{{ route('grupos.generar') }}" method="POST" style="display:inline">
       @csrf
       <button type="submit" class="btn bp"
@@ -47,8 +47,10 @@
         <i class="fas fa-magic"></i> CU-11: Generar grupos automáticamente
       </button>
     </form>
+    <a href="{{ route('grupos.create') }}" class="btn bo2"><i class="fas fa-plus"></i> Nuevo grupo</a>
+    @endcan
+    <a href="{{ route('asignaciones.index') }}" class="btn bo2"><i class="fas fa-user-tie"></i> CU-12: Asignar docentes</a>
   </div>
-  @endcan
 
   @if($grupos->isEmpty())
     <div class="al al-w">
