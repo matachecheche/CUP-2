@@ -8,7 +8,9 @@ use Spatie\Permission\Models\Role;
 
 /**
  * CupDataSeeder — pobla TODAS las tablas del sistema CUP con datos ficticios.
- * Ejecutar con: php artisan db:seed  o  migrate:fresh --seed
+ * Versión CU-17: Ingeniería Informática (INF) queda con todos los cupos
+ * ocupados tras CU-16, dejando candidatos para asignación manual de 2ª opción.
+ * Ejecutar con: php artisan migrate:fresh --seed
  */
 class CupDataSeeder extends Seeder
 {
@@ -43,8 +45,10 @@ class CupDataSeeder extends Seeder
         $carreras = DB::table('carreras')->get();
         $materias = DB::table('materias')->get();
 
-        // ── 4. CUPOS POR CARRERA Y GESTIÓN (CU-08) ──────────────────────────
-        $cuposPorSigla = ['INF'=>80,'SIS'=>75,'RYT'=>60,'ROB'=>50];
+        // ── 4. CUPOS POR CARRERA Y GESTIÓN ──────────────────────────────────
+        // INF tiene 25 cupos (pequeño para que se llene fácil con el seed),
+        // las demás tienen cupos normales para que quepan los de 2ª opción.
+        $cuposPorSigla = ['INF'=>25,'SIS'=>75,'RYT'=>60,'ROB'=>50];
         $gestiones = DB::table('gestiones')->get();
         foreach ($gestiones as $g) {
             foreach ($carreras as $c) {
@@ -56,7 +60,7 @@ class CupDataSeeder extends Seeder
             }
         }
 
-        // ── 5. DOCENTES (CU-10) ─────────────────────────────────────────────
+        // ── 5. DOCENTES ──────────────────────────────────────────────────────
         $docentesData = [
             ['ci'=>'4512378','nombres'=>'Roberto','apellidos'=>'Mamani Flores',   'telefono'=>'71234501','email'=>'rmamani@ficct.edu.bo',  'titulo_profesional'=>'Ing. en Informática',              'maestria'=>'Maestría en Ingeniería de Software',            'diplomado_educacion_superior'=>'Diplomado en Docencia Universitaria','certificacion_ingles'=>'B2','area_formacion'=>'Computación'],
             ['ci'=>'5623489','nombres'=>'Carla',   'apellidos'=>'Quispe Vargas',   'telefono'=>'72345602','email'=>'cquispe@ficct.edu.bo',   'titulo_profesional'=>'Lic. en Matemáticas',              'maestria'=>'Maestría en Docencia Universitaria',            'diplomado_educacion_superior'=>'Diplomado en Educación Superior',    'certificacion_ingles'=>null,'area_formacion'=>'Matemáticas'],
@@ -78,7 +82,7 @@ class CupDataSeeder extends Seeder
         }
         $docentes = DB::table('docentes')->get()->keyBy('email');
 
-        // ── 6. USUARIOS para docentes (vinculados) ───────────────────────────
+        // ── 6. USUARIOS para docentes ────────────────────────────────────────
         $rolDocente = Role::where('name','Docente')->first();
         foreach ($docentesData as $d) {
             $doc = $docentes[$d['email']] ?? null;
@@ -98,7 +102,10 @@ class CupDataSeeder extends Seeder
             }
         }
 
-        // ── 7. POSTULANTES (150 ficticios) (CU-05) ──────────────────────────
+        // ── 7. POSTULANTES ────────────────────────────────────────────────────
+        // Se generan 120 postulantes.
+        // Los primeros 35 tendrán INF como 1ª opción (más que el cupo de 25),
+        // garantizando que al menos 10 queden sin cupo en 1ª y necesiten 2ª opción.
         $nombres   = ['Juan','María','Carlos','Ana','Luis','Rosa','Jorge','Elena','Miguel','Paola','Ricardo','Sandra','Fernando','Claudia','Daniel','Patricia','Eduardo','Verónica','Andrés','Natalia','Sergio','Valeria','Marcos','Alejandra','Pablo','Camila','Oscar','Fernanda','Iván','Diana'];
         $apellidos = ['Mamani','Quispe','Condori','Flores','García','Torrez','Chávez','Apaza','Ticona','Aliaga','Villanueva','Beltrán','Herrera','Pinto','Rojas','Vega','Soria','Marca','Gutiérrez','Espinoza','Mendoza','Salazar','Barrios','Cáceres','Pérez','López','Miranda','Vargas','Huanca','Cruz'];
         $colegios  = ['Colegio Nacional Bolivia','U.E. San Calixto','U.E. Don Bosco','U.E. La Salle','U.E. Franz Tamayo','Colegio Los Andes','U.E. Ayacucho','U.E. Simón Bolívar','Colegio Hernando Siles','U.E. Sagrado Corazón'];
@@ -106,44 +113,59 @@ class CupDataSeeder extends Seeder
         $carreraIds = $carreras->pluck('id')->toArray();
         $rolPost    = Role::where('name','Postulante')->first();
 
-        $postInsertados = 0;
-        for ($i = 1; $i <= 150; $i++) {
+        // IDs de carreras para asignación controlada
+        $infId  = DB::table('carreras')->where('sigla','INF')->value('id');
+        $sisId  = DB::table('carreras')->where('sigla','SIS')->value('id');
+        $rytId  = DB::table('carreras')->where('sigla','RYT')->value('id');
+        $robId  = DB::table('carreras')->where('sigla','ROB')->value('id');
+
+        for ($i = 1; $i <= 120; $i++) {
             $ci = (string)(10000000 + $i * 137 + ($i % 99));
             if (DB::table('postulantes')->where('ci',$ci)->exists()) continue;
 
             $nom = $nombres[($i-1) % count($nombres)];
             $ap1 = $apellidos[($i)   % count($apellidos)];
             $ap2 = $apellidos[($i+5) % count($apellidos)];
-            $ops  = $carreraIds;
-            shuffle($ops);
-            $op1 = $ops[0]; $op2 = $ops[1];
             $nac = \Carbon\Carbon::now()->subYears(rand(17,22))->subDays(rand(0,365))->toDateString();
 
+            // Primeros 35 → 1ª opción INF (se llenarán los 25 cupos + 10 quedan fuera)
+            // Los 10 sin cupo en INF tienen 2ª opción en SIS, RYT o ROB (con cupos libres)
+            if ($i <= 35) {
+                $op1 = $infId;
+                // Alternar 2ª opción entre SIS, RYT y ROB
+                $op2 = [$sisId, $rytId, $robId][($i - 1) % 3];
+            } else {
+                // El resto: opciones aleatorias mezcladas (sin forzar INF)
+                $ops = [$sisId, $rytId, $robId];
+                shuffle($ops);
+                $op1 = $ops[0];
+                $op2 = $ops[1];
+            }
+
             $pid = DB::table('postulantes')->insertGetId([
-                'gestion_id'         => $gestion->id,
-                'primera_opcion_id'  => $op1,
-                'segunda_opcion_id'  => $op2,
-                'ci'                 => $ci,
-                'nombres'            => $nom,
-                'apellidos'          => "$ap1 $ap2",
-                'fecha_nacimiento'   => $nac,
-                'sexo'               => ($i % 2 === 0) ? 'M' : 'F',
-                'direccion'          => 'Av. '.($i % 20 + 1).' N° '.rand(100,999),
-                'telefono'           => '7'.rand(1000000,9999999),
-                'email'              => "postulante{$i}@gmail.com",
-                'colegio_procedencia'=> $colegios[$i % count($colegios)],
-                'ciudad'             => $ciudades[$i % count($ciudades)],
-                'doc_ci'             => true,
-                'doc_libreta_colegio'=> true,
+                'gestion_id'          => $gestion->id,
+                'primera_opcion_id'   => $op1,
+                'segunda_opcion_id'   => $op2,
+                'ci'                  => $ci,
+                'nombres'             => $nom,
+                'apellidos'           => "$ap1 $ap2",
+                'fecha_nacimiento'    => $nac,
+                'sexo'                => ($i % 2 === 0) ? 'M' : 'F',
+                'direccion'           => 'Av. '.($i % 20 + 1).' N° '.rand(100,999),
+                'telefono'            => '7'.rand(1000000,9999999),
+                'email'               => "postulante{$i}@gmail.com",
+                'colegio_procedencia' => $colegios[$i % count($colegios)],
+                'ciudad'              => $ciudades[$i % count($ciudades)],
+                'doc_ci'              => true,
+                'doc_libreta_colegio' => true,
                 'doc_titulo_bachiller'=> true,
-                'estado'             => 'inscrito',
-                'created_at'         => now(),
-                'updated_at'         => now(),
+                'estado'              => 'inscrito',
+                'created_at'          => now(),
+                'updated_at'          => now(),
             ]);
 
-            // Usuario vinculado al postulante
             $email = "postulante{$i}@gmail.com";
-            $user = User::firstOrCreate(
+            $user  = User::firstOrCreate(
                 ['email' => $email],
                 [
                     'name'              => "$nom $ap1 $ap2",
@@ -156,10 +178,9 @@ class CupDataSeeder extends Seeder
             if ($rolPost && !$user->hasRole('Postulante')) {
                 $user->assignRole($rolPost);
             }
-            $postInsertados++;
         }
 
-        // ── 8. GRUPOS (CU-11) — CEIL(150/60) = 3 grupos ─────────────────────
+        // ── 8. GRUPOS ─────────────────────────────────────────────────────────
         if (DB::table('grupos')->where('gestion_id',$gestion->id)->count() === 0) {
             DB::table('grupos')->insert([
                 ['gestion_id'=>$gestion->id,'codigo'=>'GRP-A','turno'=>'mañana', 'modalidad'=>'presencial','capacidad_maxima'=>60,'estado'=>true,'created_at'=>now(),'updated_at'=>now()],
@@ -169,10 +190,10 @@ class CupDataSeeder extends Seeder
         }
         $grupos = DB::table('grupos')->where('gestion_id',$gestion->id)->get();
 
-        // ── 9. INSCRIBIR POSTULANTES A GRUPOS (CU-11) ────────────────────────
+        // ── 9. INSCRIBIR POSTULANTES A GRUPOS ────────────────────────────────
         $postIds = DB::table('postulantes')->where('gestion_id',$gestion->id)->pluck('id')->toArray();
         foreach ($postIds as $idx => $pid) {
-            $grupoObj = $grupos[$idx % count($grupos)]; // distribución rotativa
+            $grupoObj = $grupos[$idx % count($grupos)];
             DB::table('grupo_postulante')->updateOrInsert(
                 ['grupo_id'=>$grupoObj->id,'postulante_id'=>$pid],
                 ['created_at'=>now(),'updated_at'=>now()]
@@ -180,12 +201,10 @@ class CupDataSeeder extends Seeder
             DB::table('postulantes')->where('id',$pid)->update(['estado'=>'en_curso','updated_at'=>now()]);
         }
 
-        // ── 10. ASIGNACIONES DOCENTE–GRUPO–MATERIA (CU-12) ──────────────────
-        //  Comp→Roberto,Julio,Carlos | Mat→Carla,Sandra,Maria | Fis→Pedro,Hugo | Ing→Lucia,Ana
+        // ── 10. ASIGNACIONES DOCENTE–GRUPO–MATERIA ───────────────────────────
         $docIds = DB::table('docentes')->pluck('id','email')->toArray();
         $matIds = DB::table('materias')->pluck('id','nombre')->toArray();
         $asignMap = [
-            // [grupo_idx, materia_nombre, docente_email, dia, h_inicio, h_fin]
             [0,'Computación','rmamani@ficct.edu.bo','lunes',   '07:00','09:00'],
             [0,'Matemáticas','cquispe@ficct.edu.bo', 'lunes',   '09:00','11:00'],
             [0,'Física',     'pcondori@ficct.edu.bo','martes',  '07:00','09:00'],
@@ -210,27 +229,23 @@ class CupDataSeeder extends Seeder
             );
         }
 
-        // ── 11. NOTAS (CU-13 / CU-14) — 3 exámenes × 4 materias × 150 postulantes
+        // ── 11. NOTAS ─────────────────────────────────────────────────────────
         $matList = DB::table('materias')->get();
         $gpMap   = DB::table('grupo_postulante')->get()->groupBy('postulante_id');
-
         $postAll = DB::table('postulantes')->where('gestion_id',$gestion->id)->pluck('id')->toArray();
+
         foreach ($postAll as $idx => $pid) {
-            $aprueba = (($idx % 10 !== 0) && ($idx % 7 !== 0)); // ~70% aprueban
+            // ~80% aprueban (índice no múltiplo de 5)
+            $aprueba = ($idx % 5 !== 0);
             $gpRows  = $gpMap->get($pid);
             $grupoId = $gpRows ? $gpRows->first()->grupo_id : $grupos[0]->id;
 
             foreach ($matList as $mat) {
                 if (DB::table('notas')->where(['postulante_id'=>$pid,'materia_id'=>$mat->id,'grupo_id'=>$grupoId])->exists()) continue;
-
                 if ($aprueba) {
                     $n1 = rand(62,92); $n2 = rand(60,95); $n3 = rand(63,98);
                 } else {
-                    if ($mat->nombre === 'Matemáticas') {
-                        $n1 = rand(20,55); $n2 = rand(18,52); $n3 = rand(22,58);
-                    } else {
-                        $n1 = rand(55,75); $n2 = rand(50,72); $n3 = rand(52,74);
-                    }
+                    $n1 = rand(20,55); $n2 = rand(18,52); $n3 = rand(22,58);
                 }
                 $nf = round($n1*0.30 + $n2*0.30 + $n3*0.40, 2);
                 DB::table('notas')->insert([
@@ -241,7 +256,6 @@ class CupDataSeeder extends Seeder
                 ]);
             }
 
-            // Actualizar promedio y estado del postulante
             $notasPost = DB::table('notas')->where('postulante_id',$pid)->get();
             $promedio  = round($notasPost->avg('nota_final'), 2);
             $estadoPos = $notasPost->every(fn($n)=>$n->nota_final>=60) ? 'aprobado' : 'no_aprobado';
@@ -250,8 +264,10 @@ class CupDataSeeder extends Seeder
             ]);
         }
 
-        // ── 12. ADMISIONES (CU-16 / CU-17 / CU-18) ──────────────────────────
-        $cuposDB = DB::table('cupos_carrera')->where('gestion_id',$gestion->id)->pluck('cantidad_maxima','carrera_id')->toArray();
+        // ── 12. CU-16: PROCESAR 1ª OPCIÓN ────────────────────────────────────
+        // Ejecutamos sólo la primera opción aquí para que INF quede con cupos llenos
+        // y los sobrantes queden en estado 'aprobado' esperando CU-17.
+        $cuposDB    = DB::table('cupos_carrera')->where('gestion_id',$gestion->id)->pluck('cantidad_maxima','carrera_id')->toArray();
         $contadores = array_fill_keys(array_keys($cuposDB), 0);
 
         $aprobados = DB::table('postulantes')
@@ -260,38 +276,39 @@ class CupDataSeeder extends Seeder
             ->orderByDesc('promedio_general')
             ->get();
 
-        $pendientes2 = [];
         foreach ($aprobados as $p) {
             if (DB::table('admisiones')->where('postulante_id',$p->id)->exists()) continue;
             $c1 = $p->primera_opcion_id;
             if (($contadores[$c1] ?? 0) < ($cuposDB[$c1] ?? 0)) {
-                DB::table('admisiones')->insert(['postulante_id'=>$p->id,'gestion_id'=>$gestion->id,'promedio_general'=>$p->promedio_general,'carrera_asignada_id'=>$c1,'resultado'=>'admitido_primera','publicado'=>true,'created_at'=>now(),'updated_at'=>now()]);
+                DB::table('admisiones')->insert([
+                    'postulante_id'      => $p->id,
+                    'gestion_id'         => $gestion->id,
+                    'promedio_general'   => $p->promedio_general,
+                    'carrera_asignada_id'=> $c1,
+                    'resultado'          => 'admitido_primera',
+                    'publicado'          => false,
+                    'created_at'         => now(),
+                    'updated_at'         => now(),
+                ]);
                 $contadores[$c1]++;
                 DB::table('postulantes')->where('id',$p->id)->update(['estado'=>'admitido','updated_at'=>now()]);
-            } else {
-                $pendientes2[] = $p;
             }
+            // Los que no entran en 1ª se quedan en 'aprobado' para CU-17
         }
-        foreach ($pendientes2 as $p) {
-            $c2 = $p->segunda_opcion_id;
-            if (($contadores[$c2] ?? 0) < ($cuposDB[$c2] ?? 0)) {
-                DB::table('admisiones')->insert(['postulante_id'=>$p->id,'gestion_id'=>$gestion->id,'promedio_general'=>$p->promedio_general,'carrera_asignada_id'=>$c2,'resultado'=>'admitido_segunda','publicado'=>true,'created_at'=>now(),'updated_at'=>now()]);
-                $contadores[$c2]++;
-                DB::table('postulantes')->where('id',$p->id)->update(['estado'=>'admitido_segunda_opcion','updated_at'=>now()]);
-            } else {
-                DB::table('admisiones')->insert(['postulante_id'=>$p->id,'gestion_id'=>$gestion->id,'promedio_general'=>$p->promedio_general,'carrera_asignada_id'=>null,'resultado'=>'no_admitido','publicado'=>true,'created_at'=>now(),'updated_at'=>now()]);
-                DB::table('postulantes')->where('id',$p->id)->update(['estado'=>'no_admitido','updated_at'=>now()]);
-            }
-        }
-        // Reprobados sin admisión
-        DB::table('postulantes')->where('gestion_id',$gestion->id)->where('estado','no_aprobado')
-            ->chunkById(50, function($chunk) use ($gestion) {
-                foreach ($chunk as $p) {
-                    if (DB::table('admisiones')->where('postulante_id',$p->id)->exists()) continue;
-                    DB::table('admisiones')->insert(['postulante_id'=>$p->id,'gestion_id'=>$gestion->id,'promedio_general'=>$p->promedio_general,'carrera_asignada_id'=>null,'resultado'=>'no_admitido','publicado'=>false,'created_at'=>now(),'updated_at'=>now()]);
-                }
-            });
+
+        $pendientes = DB::table('postulantes')
+            ->where('gestion_id',$gestion->id)
+            ->where('estado','aprobado')
+            ->count();
+
+        $infOcupados = DB::table('admisiones')
+            ->where('gestion_id',$gestion->id)
+            ->where('carrera_asignada_id', $infId)
+            ->count();
 
         $this->command->info('  CupDataSeeder completado ✔');
+        $this->command->info("  ➜ INF: {$infOcupados}/{$cuposDB[$infId]} cupos ocupados (LLENO)");
+        $this->command->info("  ➜ Postulantes en espera de CU-17: {$pendientes}");
+        $this->command->info('  ➜ Ve a Admisión → Paso 2 (CU-17) para asignar manualmente.');
     }
 }

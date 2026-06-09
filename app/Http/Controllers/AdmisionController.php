@@ -1,14 +1,16 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\{Admision, CupoCarrera, Gestion, Postulante};
+use App\Models\{Admision, CupoCarrera, Gestion, Postulante, Carrera};
 use App\Traits\BitacoraTrait;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 /**
  * Proceso de admisión en 3 pasos, cada uno con interfaz y lógica propia:
  *  CU-16 asigna la 1ª opción por ranking de promedio hasta llenar cupos;
- *  CU-17 reasigna los aprobados sin cupo a su 2ª opción (o no admitido);
+ *  CU-17 permite asignar manualmente la 2ª opción a los aprobados sin cupo
+ *        (solo disponible cuando al menos una carrera tiene todos sus cupos llenos);
  *  CU-18 publica los resultados y materializa el acta de los reprobados,
  *  habilitando la consulta pública (CU-22). Incluye reinicio del proceso.
  */
@@ -20,7 +22,7 @@ class AdmisionController extends Controller
     {
         $this->middleware('auth');
         $this->middleware('permission:ver admision')->only('index', 'primera', 'segunda', 'publicacion');
-        $this->middleware('permission:procesar admision')->only('procesarPrimera', 'procesarSegunda', 'reiniciar');
+        $this->middleware('permission:procesar admision')->only('procesarPrimera', 'procesarSegunda', 'asignarSegundaOpcion', 'reiniciar');
         $this->middleware('permission:publicar admision')->only('publicar');
     }
 
@@ -39,7 +41,6 @@ class AdmisionController extends Controller
         abort_unless($gestion, 404);
         $e = $this->estadoProceso($gestion);
 
-        // Proyección: simula el ranking contra los cupos libres de la 1ª opción
         $libres = collect($e['cupos'])->pluck('libres', 'id')->toArray();
         $candidatos = $e['pendientes']->map(function ($p) use (&$libres) {
             $entra = ($libres[$p->primera_opcion_id] ?? 0) > 0;
@@ -75,7 +76,7 @@ class AdmisionController extends Controller
                     $p->update(['estado' => 'admitido']);
                     $libres[$c1]--; $a++;
                 } else {
-                    $s++; // queda 'aprobado': lo resuelve CU-17
+                    $s++;
                 }
             }
             return [$a, $s];
@@ -86,34 +87,129 @@ class AdmisionController extends Controller
             ->with('success', "1ª opción procesada: {$ok} admitidos, {$sinCupo} pendientes para CU-17.");
     }
 
-    /** CU-17: pantalla de reasignación a segunda opción. */
+    /** CU-17: pantalla de reasignación MANUAL a segunda opción.
+     *  Solo muestra candidatos si existe al menos una carrera con todos los cupos ocupados.
+     */
     public function segunda()
     {
         $gestion = $this->gestionActiva();
         abort_unless($gestion, 404);
         $e = $this->estadoProceso($gestion);
 
-        $libres = collect($e['cupos'])->pluck('libres', 'id')->toArray();
-        $candidatos = $e['pendientes']->map(function ($p) use (&$libres) {
-            $entra = ($libres[$p->segunda_opcion_id] ?? 0) > 0;
-            if ($entra) $libres[$p->segunda_opcion_id]--;
-            $p->proyeccion = $entra ? 'entra' : 'sin_cupo';
-            return $p;
-        });
+        // Determinar si hay al menos una carrera con todos los cupos ocupados
+        $hayCarreraLlena = collect($e['cupos'])->contains(fn($c) => $c['libres'] === 0 && $c['cupo'] > 0);
 
+        // Candidatos: aprobados sin cupo (estado 'aprobado' = no entraron en 1ª opción)
+        // Solo se muestran si hay al menos una carrera llena
+        $candidatos = collect();
+        if ($hayCarreraLlena) {
+            $candidatos = $e['pendientes']->map(function ($p) use ($e) {
+                $libres2 = collect($e['cupos'])->firstWhere('id', $p->segunda_opcion_id)['libres'] ?? 0;
+                $p->cupos_segunda = $libres2;
+                $p->puede_asignar = $libres2 > 0;
+                return $p;
+            });
+        }
+
+        // Carreras con cupos llenos (para mostrar alerta visual)
+        $carrerasLlenas = collect($e['cupos'])->filter(fn($c) => $c['libres'] === 0 && $c['cupo'] > 0)->values();
+
+        // Ya reasignados (admitido_segunda o no_admitido manual)
         $reasignados = Admision::with(['postulante', 'carreraAsignada'])
-            ->where('gestion_id', $gestion->id)->whereIn('resultado', ['admitido_segunda', 'no_admitido'])
-            ->whereHas('postulante', fn ($q) => $q->where('estado', '!=', 'no_aprobado'))
+            ->where('gestion_id', $gestion->id)
+            ->whereIn('resultado', ['admitido_segunda', 'no_admitido'])
+            ->whereHas('postulante', fn($q) => $q->where('estado', '!=', 'no_aprobado'))
             ->orderByDesc('promedio_general')->get();
 
-        return view('admision.segunda', compact('gestion', 'e', 'candidatos', 'reasignados'));
+        return view('admision.segunda', compact(
+            'gestion', 'e', 'candidatos', 'reasignados',
+            'hayCarreraLlena', 'carrerasLlenas'
+        ));
     }
 
-    /** CU-17: ejecuta la reasignación (2ª opción o no admitido). */
+    /**
+     * CU-17: asigna manualmente la 2ª opción a UN postulante específico.
+     * Solo se puede ejecutar si su 2ª opción tiene cupos libres.
+     */
+    public function asignarSegundaOpcion(Request $request, Postulante $postulante)
+    {
+        $gestion = $this->gestionActiva();
+        abort_unless($gestion, 404);
+
+        // Validar que el postulante está en espera para 2ª opción
+        if ($postulante->estado !== 'aprobado') {
+            return redirect()->route('admision.segunda')
+                ->with('error', "El postulante {$postulante->nombre_completo} no está en espera de 2ª opción (estado: {$postulante->estado}).");
+        }
+
+        // Verificar cupos disponibles en su 2ª opción
+        $cupoCarrera = CupoCarrera::where('carrera_id', $postulante->segunda_opcion_id)
+            ->where('gestion_id', $gestion->id)
+            ->first();
+
+        if (!$cupoCarrera) {
+            return redirect()->route('admision.segunda')
+                ->with('error', 'No se encontró configuración de cupos para la 2ª opción de este postulante.');
+        }
+
+        $ocupados = Admision::where('gestion_id', $gestion->id)
+            ->where('carrera_asignada_id', $postulante->segunda_opcion_id)
+            ->count();
+
+        $libres = $cupoCarrera->cantidad_maxima - $ocupados;
+
+        if ($libres <= 0) {
+            return redirect()->route('admision.segunda')
+                ->with('error', "No hay cupos libres en {$postulante->segundaOpcion?->nombre} para asignar a {$postulante->nombre_completo}.");
+        }
+
+        // Verificar que existe al menos una carrera con todos los cupos llenos
+        $e = $this->estadoProceso($gestion);
+        $hayCarreraLlena = collect($e['cupos'])->contains(fn($c) => $c['libres'] === 0 && $c['cupo'] > 0);
+
+        if (!$hayCarreraLlena) {
+            return redirect()->route('admision.segunda')
+                ->with('error', 'No se puede asignar 2ª opción: ninguna carrera tiene todos sus cupos ocupados.');
+        }
+
+        DB::transaction(function () use ($postulante, $gestion) {
+            Admision::updateOrCreate(
+                ['postulante_id' => $postulante->id],
+                [
+                    'gestion_id'          => $gestion->id,
+                    'promedio_general'     => $postulante->promedio_general,
+                    'carrera_asignada_id'  => $postulante->segunda_opcion_id,
+                    'resultado'            => 'admitido_segunda',
+                    'publicado'            => false,
+                ]
+            );
+            $postulante->update(['estado' => 'admitido_segunda_opcion']);
+        });
+
+        $carreraNombre = $postulante->segundaOpcion?->nombre ?? 'desconocida';
+        $this->registrarEnBitacora(
+            "CU-17: Asignó manualmente a {$postulante->nombre_completo} (CI: {$postulante->ci}) a 2ª opción: {$carreraNombre}",
+            null, 'Admisión'
+        );
+
+        return redirect()->route('admision.segunda')
+            ->with('success', "✔ {$postulante->nombre_completo} asignado(a) a {$carreraNombre} (2ª opción).");
+    }
+
+    /** CU-17: ejecuta la reasignación masiva (2ª opción o no admitido). */
     public function procesarSegunda()
     {
         $gestion = $this->gestionActiva();
         abort_unless($gestion, 404);
+
+        // Verificar que hay al menos una carrera llena
+        $e = $this->estadoProceso($gestion);
+        $hayCarreraLlena = collect($e['cupos'])->contains(fn($c) => $c['libres'] === 0 && $c['cupo'] > 0);
+
+        if (!$hayCarreraLlena) {
+            return redirect()->route('admision.segunda')
+                ->with('error', 'No se puede procesar la 2ª opción: ninguna carrera tiene todos sus cupos ocupados.');
+        }
 
         [$dos, $sin] = DB::transaction(function () use ($gestion) {
             $e = $this->estadoProceso($gestion);
@@ -154,7 +250,7 @@ class AdmisionController extends Controller
         return view('admision.publicacion', compact('gestion', 'e'));
     }
 
-    /** CU-18: publica resultados; materializa el acta de los reprobados (habilita CU-22). */
+    /** CU-18: publica resultados; materializa el acta de los reprobados. */
     public function publicar()
     {
         $gestion = $this->gestionActiva();
@@ -167,7 +263,6 @@ class AdmisionController extends Controller
         }
 
         $n = DB::transaction(function () use ($gestion) {
-            // Sin acta, la consulta pública (CU-22) no podría mostrar nada a los reprobados
             Postulante::where('gestion_id', $gestion->id)->where('estado', 'no_aprobado')
                 ->whereDoesntHave('admision')->get()
                 ->each(fn ($p) => Admision::create([
@@ -184,7 +279,7 @@ class AdmisionController extends Controller
             ->with('success', "{$n} resultado(s) publicados. Ya son visibles en la consulta pública (CU-22).");
     }
 
-    /** Reinicia el proceso para poder re-ejecutar CU-16 → CU-17 → CU-18 (demo/correcciones). */
+    /** Reinicia el proceso para poder re-ejecutar CU-16 → CU-17 → CU-18. */
     public function reiniciar()
     {
         $gestion = $this->gestionActiva();
@@ -209,7 +304,6 @@ class AdmisionController extends Controller
         return Gestion::where('estado', 'en_curso')->first();
     }
 
-    /** Estado del proceso: cupos y ocupación por carrera, pendientes y contadores. */
     private function estadoProceso(Gestion $gestion): array
     {
         $asignados = Admision::where('gestion_id', $gestion->id)->whereNotNull('carrera_asignada_id')
@@ -222,11 +316,12 @@ class AdmisionController extends Controller
 
         $cupos = CupoCarrera::with('carrera')->where('gestion_id', $gestion->id)->get()
             ->map(fn ($c) => [
-                'id' => $c->carrera_id,
-                'carrera' => $c->carrera->nombre,
-                'cupo' => $c->cantidad_maxima,
+                'id'       => $c->carrera_id,
+                'carrera'  => $c->carrera->nombre,
+                'sigla'    => $c->carrera->sigla,
+                'cupo'     => $c->cantidad_maxima,
                 'ocupados' => (int) ($asignados[$c->carrera_id] ?? 0),
-                'libres' => max(0, $c->cantidad_maxima - (int) ($asignados[$c->carrera_id] ?? 0)),
+                'libres'   => max(0, $c->cantidad_maxima - (int) ($asignados[$c->carrera_id] ?? 0)),
                 'demanda1' => (int) ($demanda1[$c->carrera_id] ?? 0),
             ])->sortBy('carrera')->values()->all();
 

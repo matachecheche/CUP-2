@@ -91,8 +91,12 @@ Route::middleware('auth')->group(function () {
     Route::get( 'admision',             [AdmisionController::class,'index'])->name('admision.index');
     Route::get( 'admision/primera',     [AdmisionController::class,'primera'])->name('admision.primera');
     Route::post('admision/primera',     [AdmisionController::class,'procesarPrimera'])->name('admision.primera.procesar');
+    // ── CU-17 MANUAL: asignar/rechazar postulantes individualmente ──────────
+    Route::post('admision/segunda/manual/{postulante}',   [AdmisionController::class,'asignarSegundaManual'])->name('admision.segunda.asignar');
+    Route::post('admision/segunda/rechazar/{postulante}', [AdmisionController::class,'rechazarSegundaManual'])->name('admision.segunda.rechazar');
     Route::get( 'admision/segunda',     [AdmisionController::class,'segunda'])->name('admision.segunda');
     Route::post('admision/segunda',     [AdmisionController::class,'procesarSegunda'])->name('admision.segunda.procesar');
+    Route::post('admision/segunda/{postulante}/asignar', [AdmisionController::class,'asignarSegundaOpcion'])->name('admision.segunda.asignar');
     Route::get( 'admision/publicacion', [AdmisionController::class,'publicacion'])->name('admision.publicacion');
     Route::post('admision/publicar',    [AdmisionController::class,'publicar'])->name('admision.publicar');
     Route::post('admision/reiniciar',   [AdmisionController::class,'reiniciar'])->name('admision.reiniciar');

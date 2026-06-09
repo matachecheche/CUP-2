@@ -164,6 +164,7 @@
       <i class="ico fas fa-cogs"></i>CU-16 · Procesar admisión por primera opción</a>
     <a class="ni {{ request()->routeIs('admision.segunda') ? 'act':'' }}" href="{{ route('admision.segunda') }}">
       <i class="ico fas fa-exchange-alt"></i>CU-17 · Reasignar postulantes a segunda opción</a>
+      <i class="ico fas fa-hand-pointer"></i>CU-17 · Asig. manual 2ª op.</a>
     @else
     <span class="ni pnd"><i class="ico fas fa-cogs"></i>CU-16 · Procesar admisión por primera opción<span class="nbg">Sin acceso</span></span>
     <span class="ni pnd"><i class="ico fas fa-exchange-alt"></i>CU-17 · Reasignar postulantes a segunda opción<span class="nbg">Sin acceso</span></span>
