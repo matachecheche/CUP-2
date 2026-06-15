@@ -36,6 +36,7 @@
         <div>
           <label class="fl">Nueva contraseña <span style="color:var(--t3); font-weight:400;">(opcional)</span></label>
           <input type="password" name="password" class="fc @error('password') is-invalid @enderror" minlength="8">
+          <small style="color:var(--t3); display:block; margin-top:4px;">Si la cambias: minimo 8 caracteres, mayuscula, minuscula, numero y simbolo.</small>
           @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div>

@@ -37,6 +37,7 @@
           <label class="fl">Contraseña <span class="rq">*</span></label>
           <input type="password" name="password" class="fc @error('password') is-invalid @enderror"
                  required minlength="8">
+          <small style="color:var(--t3); display:block; margin-top:4px;">Minimo 8 caracteres, debe incluir mayuscula, minuscula, numero y simbolo.</small>
           @error('password')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
         </div>
         <div>

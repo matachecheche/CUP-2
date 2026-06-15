@@ -7,6 +7,7 @@ use App\Traits\BitacoraTrait;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password as PasswordRule;
 use Spatie\Permission\Models\Role;
 use Exception;
 
@@ -48,13 +49,14 @@ class UsuarioController extends Controller
         $request->validate([
             'name'     => 'required|string|max:100|regex:/^[\pL\s\.\-]+$/u',
             'email'    => 'required|email|max:100|unique:users,email',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => ['required','string','confirmed', PasswordRule::min(8)->mixedCase()->numbers()->symbols()],
             'role'     => 'required|exists:roles,name',
         ], [
             'name.regex'       => 'El nombre solo puede contener letras, espacios, punto y guion.',
             'email.unique'     => 'Ya existe un usuario con ese email.',
             'password.min'     => 'La contraseña debe tener al menos 8 caracteres.',
             'password.confirmed'=> 'La confirmación de la contraseña no coincide.',
+            'password.uncompromised' => 'La contrasena es demasiado comun, elige otra.',
         ]);
 
         // Validar que no se vinculen ambos tipos a la vez
@@ -143,7 +145,7 @@ class UsuarioController extends Controller
                 'postulante_id' => $request->postulante_id ?: null,
             ]);
             if ($request->filled('password')) {
-                $request->validate(['password' => 'string|min:8|confirmed']);
+                $request->validate(['password' => ['string','confirmed', PasswordRule::min(8)->mixedCase()->numbers()->symbols()]]);
                 $user->update(['password' => Hash::make($request->password)]);
             }
             $user->syncRoles([$request->role]);
