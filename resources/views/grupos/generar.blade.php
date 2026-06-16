@@ -41,7 +41,7 @@
         @foreach(['presencial'=>'Presencial','virtual'=>'Virtual'] as $v=>$l)<option value="{{ $v }}" {{ old('modalidad')===$v?'selected':'' }}>{{ $l }}</option>@endforeach
       </select>
     </div>
-    <div class="al al-w" id="preview" style="margin:0"></div>
+    <div class="al al-w" id="preview" style="margin:0;display:block;line-height:1.5"></div>
     <div style="display:flex;gap:.5rem">
       <button type="submit" class="btn bp" id="btnGenerar"><i class="fas fa-magic"></i> Generar grupos</button>
       <a href="{{ route('grupos.index') }}" class="btn bo2">Cancelar</a>
@@ -61,10 +61,16 @@
     const grupos = Math.ceil(total / cap);          // mismo cálculo estricto que el backend
     const ultimo = total - (grupos - 1) * cap;      // estudiantes en el último grupo
     btn.disabled = total < 1;
-    preview.innerHTML = total < 1
-      ? 'No hay inscritos sin grupo para esta gestión.'
-      : 'Con <strong>'+total+'</strong> inscritos sin grupo y grupos de <strong>'+cap+'</strong> se crearán '
-        + '<strong>'+grupos+'</strong> grupo(s). El último grupo tendría <strong>'+ultimo+'</strong> estudiante(s).';
+    if (total < 1) {
+      preview.innerHTML = 'No hay inscritos sin grupo para esta gestión.';
+    } else if (grupos === 1) {
+      preview.innerHTML = 'Se creará <strong>1</strong> grupo con capacidad <strong>'+cap+'</strong> para los <strong>'+total+'</strong> inscritos sin grupo.';
+    } else if (ultimo === cap) {
+      preview.innerHTML = 'Se crearán <strong>'+grupos+'</strong> grupos de <strong>'+cap+'</strong> estudiantes cada uno (<strong>'+total+'</strong> inscritos en total).';
+    } else {
+      preview.innerHTML = 'Se crearán <strong>'+grupos+'</strong> grupos para repartir los <strong>'+total+'</strong> inscritos sin grupo: '
+        + '<strong>'+(grupos-1)+'</strong> grupo(s) de <strong>'+cap+'</strong> y el último con <strong>'+ultimo+'</strong> estudiante(s).';
+    }
   }
   capInput.addEventListener('input', actualizarPreview);
   actualizarPreview();
