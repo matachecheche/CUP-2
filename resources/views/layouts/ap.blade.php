@@ -72,7 +72,7 @@
 
   {{-- Módulo 2: Registro de Postulantes y Gestión Académica --}}
   <div class="sb-sec">
-    <div class="sb-ttl">👤 Registro de Postulantes y Gestión Académica</div>
+    <div class="sb-ttl">👤 Postulantes y Gestión Académica</div>
     @can('ver postulantes')
     <a class="ni {{ request()->routeIs('postulantes.*') ? 'act':'' }}" href="{{ route('postulantes.index') }}">
       <i class="ico fas fa-user-plus"></i>CU-05 · Gestionar postulantes</a>
@@ -119,7 +119,7 @@
 
   {{-- Módulo 3: Asignación de Grupos y Docentes --}}
   <div class="sb-sec">
-    <div class="sb-ttl">🏫 Asignación de Grupos y Docentes</div>
+    <div class="sb-ttl">🏫 Grupos y Docentes</div>
     @can('ver docentes')
     <a class="ni {{ request()->routeIs('docentes.*') ? 'act':'' }}" href="{{ route('docentes.index') }}">
       <i class="ico fas fa-chalkboard-teacher"></i>CU-10 · Gestionar docentes</a>
