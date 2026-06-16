@@ -25,6 +25,11 @@ class UsuariosSeeder extends Seeder
                 'rol'   => 'Docente',
             ],
             [
+                'name'  => 'Coordinador CUP',
+                'email' => 'coordinador@cup.edu.bo',
+                'rol'   => 'Coordinador del CUP',
+            ],
+            [
                 'name'  => 'Postulante Demo',
                 'email' => 'postulante@cup.edu.bo',
                 'rol'   => 'Postulante',

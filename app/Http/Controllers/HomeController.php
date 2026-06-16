@@ -39,7 +39,7 @@ class HomeController extends Controller
             $dash = $this->dashDocente($u);
         } elseif ($u->postulante_id) {
             $dash = $this->dashPostulante($u);
-        } elseif ($u->can('ver postulantes')) {
+        } elseif ($u->can('ver postulantes')) { // Admin + Coordinador del CUP
             $dash = $this->dashAdmin();
         }
 

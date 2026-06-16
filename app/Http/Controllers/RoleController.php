@@ -13,7 +13,7 @@ class RoleController extends Controller
     use BitacoraTrait;
 
     // Roles del sistema que NO pueden eliminarse
-    const ROLES_PROTEGIDOS = ['Administrador del Sistema', 'Docente', 'Postulante'];
+    const ROLES_PROTEGIDOS = ['Administrador del Sistema', 'Docente', 'Postulante', 'Coordinador del CUP'];
 
     public function __construct()
     {

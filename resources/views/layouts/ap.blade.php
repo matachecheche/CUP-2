@@ -218,6 +218,10 @@ window.addEventListener('resize',()=>{col=window.innerWidth<769;apl()});
 document.addEventListener('click',e=>{const d=document.getElementById('usrDd');if(d&&!d.contains(e.target))d.classList.remove('open')});
 window.addEventListener('beforeunload',()=>navigator.sendBeacon('{{ route("bitacora.page-close") }}',new URLSearchParams({_token:'{{ csrf_token() }}'})));
 </script>
+@auth
+
+<x-asistente-voz />
+@endauth
 @stack('js')
 </body>
 </html>
